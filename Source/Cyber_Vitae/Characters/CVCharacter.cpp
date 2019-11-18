@@ -66,6 +66,7 @@ void ACVCharacter::EndCrouch()
 	UnCrouch();
 }
 
+
 // Called every frame
 void ACVCharacter::Tick(float DeltaTime)
 {
@@ -87,7 +88,21 @@ void ACVCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ACVCharacter::EndCrouch);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACVCharacter::Jump);
+	
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACVCharacter::StartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACVCharacter::StopFire);
 
+
+}
+
+void ACVCharacter::StartFire()
+{
+	EquippedWeapon->StartFire();
+}
+
+void ACVCharacter::StopFire()
+{
+	EquippedWeapon->StopFire();
 }
 
 
