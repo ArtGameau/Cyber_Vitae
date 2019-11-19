@@ -57,9 +57,9 @@ void ACVWeapon::Fire()
 
 		FVector ShotDirection = EyeRotation.Vector();
 
-		////bullet spread
-		//float HalfRad = FMath::DegreesToRadians(BulletSpread);
-		//ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);
+		//bullet spread
+		float HalfRad = FMath::DegreesToRadians(BulletSpread);
+		ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);
 
 		FVector TraceEnd = EyeLocation + (ShotDirection * 10000);
 
