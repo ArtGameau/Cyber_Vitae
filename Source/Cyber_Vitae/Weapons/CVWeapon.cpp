@@ -75,7 +75,7 @@ void ACVWeapon::Fire()
 		EPhysicalSurface SurfaceType = SurfaceType_Default;
 
 		FHitResult Hit;
-		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, ECC_Visibility, QueryParams)) {
+		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams)) {
 			//Blocking hit process damage
 
 			AActor* HitActor = Hit.GetActor();
@@ -127,7 +127,7 @@ void ACVWeapon::PlayFireEffect(FVector EndPoint)
 
 void ACVWeapon::PlayImpactEffect(EPhysicalSurface SurfaceType, FVector ImpactPoint)
 {
-	UParticleSystem* SelectedEffect = nullptr;
+	UParticleSystem* SelectedEffect = DefaultImpactEffect;
 
 	switch (SurfaceType)
 	{

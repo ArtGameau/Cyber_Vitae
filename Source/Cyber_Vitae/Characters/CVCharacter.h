@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class ACVWeapon;
+class UCVHealthComponent;
 
 UCLASS()
 class CYBER_VITAE_API ACVCharacter : public ACharacter
@@ -30,6 +31,9 @@ protected:
 	void EndCrouch();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		UCVHealthComponent* HealthComp;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UCameraComponent* CameraComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -42,6 +46,14 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 	FName WeaponAttachSocketName;
+
+	UFUNCTION()
+		void OnHealthChanged(UCVHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType,
+			class AController* InstigatedBy, AActor* DamageCauser);
+
+	//Pawn died previously
+	UPROPERTY(BlueprintReadOnly, Category = "Player")
+		bool bDied;
 
 public:	
 	// Called every frame

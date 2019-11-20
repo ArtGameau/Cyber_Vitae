@@ -2,8 +2,11 @@
 
 
 #include "CVCharacter.h"
+#include "Cyber_Vitae.h"
+#include "Components/CVHealthComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Weapons/CVWeapon.h"
@@ -23,7 +26,11 @@ ACVCharacter::ACVCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
 
+	HealthComp = CreateDefaultSubobject<UCVHealthComponent>(TEXT("HealthComp"));
+	
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
 	WeaponAttachSocketName = "WeaponSocket";
 
@@ -43,7 +50,10 @@ void ACVCharacter::BeginPlay()
 			EquippedWeapon->SetOwner(this);
 			EquippedWeapon->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 		}
-	
+
+		bDied = false;
+
+		HealthComp->OnHealthChanged.AddDynamic(this, &ACVCharacter::OnHealthChanged);
 }
 
 void ACVCharacter::MoveForward(float Value)
@@ -66,6 +76,29 @@ void ACVCharacter::EndCrouch()
 	UnCrouch();
 }
 
+
+void ACVCharacter::OnHealthChanged(UCVHealthComponent* OwningHealthComp, float Health, float HealthDelta,
+	const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+
+	UE_LOG(LogTemp, Log, TEXT("Health changed!"));
+	
+	if(Health<=0.0f && !bDied)
+	{
+		//Die!
+
+		GetMovementComponent()->StopMovementImmediately();
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		EquippedWeapon->SetActorEnableCollision(ECollisionEnabled::NoCollision);
+		bDied = true;
+
+		UE_LOG(LogTemp, Log, TEXT("Actor is killed!"));
+
+		DetachFromControllerPendingDestroy();
+		SetLifeSpan(10.0f);
+		EquippedWeapon->SetLifeSpan(10.0f);
+	}
+}
 
 // Called every frame
 void ACVCharacter::Tick(float DeltaTime)
