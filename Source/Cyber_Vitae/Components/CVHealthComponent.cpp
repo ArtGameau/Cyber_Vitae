@@ -87,10 +87,10 @@ bool UCVHealthComponent::IsFriendly(AActor* ActorA, AActor* ActorB)
 	UCVHealthComponent* HealthCompA = Cast<UCVHealthComponent>(ActorA->GetComponentByClass(UCVHealthComponent::StaticClass()));
 	UCVHealthComponent* HealthCompB = Cast<UCVHealthComponent>(ActorB->GetComponentByClass(UCVHealthComponent::StaticClass()));
 
-	//if it doesn't have health it can't be damaged
+	//can receive damage from grenades
 	if(HealthCompA==nullptr || HealthCompB==nullptr)
 	{
-		return true;
+		return false;
 	}
 
 	return HealthCompA->TeamNum == HealthCompB->TeamNum;
