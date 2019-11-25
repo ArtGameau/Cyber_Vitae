@@ -30,6 +30,12 @@ protected:
 	void BeginCrouch();
 	void EndCrouch();
 
+	void BeginZoom();
+	void EndZoom();
+
+	void NextWeapon();
+	void PreviousWeapon();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UCVHealthComponent* HealthComp;
 	
@@ -39,10 +45,21 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		USpringArmComponent* SpringArmComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		USpringArmComponent* ZoomedSpringArmComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		UCameraComponent* ZoomedCameraComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	ACVWeapon* EquippedWeapon;
+
+	int32 CurrentWeaponPlace;
+
+	int32 WeaponStackSize;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
-	TSubclassOf<ACVWeapon> EquipedWeaponClass;
+	TArray<TSubclassOf<ACVWeapon>> EquipedWeaponClasses;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 	FName WeaponAttachSocketName;
@@ -54,6 +71,18 @@ protected:
 	//Pawn died previously
 	UPROPERTY(BlueprintReadOnly, Category = "Player")
 		bool bDied;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	bool bWantsToZoom;
+
+	UPROPERTY(VisibleAnywhere, Category = "Player")
+		float ZoomedFOV;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+		float DefaultFOV;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = 0.1, ClampMax = 100))
+		float ZoomInterpSpeed;
 
 public:	
 	// Called every frame

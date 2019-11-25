@@ -2,6 +2,7 @@
 
 
 #include "CVProjectile.h"
+#include "Cyber_Vitae.h"
 #include "TimerManager.h"
 #include "GameFramework/DamageType.h"
 #include "Components/StaticMeshComponent.h"
@@ -11,6 +12,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "DrawDebugHelpers.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 // Sets default values
 ACVProjectile::ACVProjectile()
@@ -82,7 +84,26 @@ void ACVProjectile::Explode()
 
 void ACVProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Trying to overlap!"));
+	//UE_LOG(LogTemp, Warning, TEXT("Trying to overlap!"));
+
+	if (bFleshProjectile)
+	{
+		EPhysicalSurface SurfaceType = SurfaceType_Default;
+
+		SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+
+		if(!SurfaceType)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("Can't get surface type!"));
+
+		}
+		
+		if (SurfaceType == SURFACE_FLESHVULNERABLE || SurfaceType == SURFACE_FLESHDEFAULT)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Hit some flesh!"));
+			Explode();
+		}
+	}
 	
 	if (bImpactProjectile) {
 		
@@ -94,6 +115,8 @@ void ACVProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 			Explode();
 		}
 	}
+
+	
 }
 
 // Called every frame

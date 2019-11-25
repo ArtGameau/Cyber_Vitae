@@ -15,6 +15,9 @@ UCLASS()
 class CYBER_VITAE_API ACVProjectileWeapon : public ACVWeapon
 {
 	GENERATED_BODY()
+
+public:
+	ACVProjectileWeapon();
 	
 protected:
 

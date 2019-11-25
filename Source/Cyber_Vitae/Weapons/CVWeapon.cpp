@@ -22,17 +22,13 @@ FAutoConsoleVariableRef CVARDebugWeaponDrawing(
 // Sets default values
 ACVWeapon::ACVWeapon()
 {
-
 	MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComp"));
 	RootComponent = MeshComp;
 
 	MuzzleSocketName = "MuzzleSocket";
 	TracerTargetName = "BeamEnd";
 
-	BaseDamage = 20.0f;
-	BulletSpread = 2.0f;
-	RateOfFire = 600;
-
+	bCanZoom = false;
 }
 
 // Called when the game starts or when spawned

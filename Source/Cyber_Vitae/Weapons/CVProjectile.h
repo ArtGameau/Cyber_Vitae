@@ -52,6 +52,9 @@ protected:
 		bool bImpactProjectile;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
+		bool bFleshProjectile;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 		int32 ImpactNum;
 
 	FTimerHandle TimerHandle_Explode;

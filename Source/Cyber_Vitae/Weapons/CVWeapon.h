@@ -74,9 +74,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		TSubclassOf<UCameraShake> FireCamShake;
-	
+
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
+		bool bCanZoom;
 
 	void StartFire();
 

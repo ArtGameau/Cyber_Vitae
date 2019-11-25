@@ -7,12 +7,15 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 
+ACVProjectileWeapon::ACVProjectileWeapon()
+{
+	RateOfFire = 60;
+}
+
 // Called when the game starts or when spawned
 void ACVProjectileWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
-	RateOfFire = 60;
 	
 	TimeBetweenShots = 60 / RateOfFire;
 
