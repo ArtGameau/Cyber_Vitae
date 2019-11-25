@@ -54,6 +54,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	ACVWeapon* EquippedWeapon;
 
+	void SpawnWeapon();
+
 	int32 CurrentWeaponPlace;
 
 	int32 WeaponStackSize;

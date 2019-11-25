@@ -59,20 +59,12 @@ void ACVCharacter::BeginPlay()
 
 	DefaultFOV = ZoomedCameraComp->FieldOfView;
 	
-	//Spawn a default weapon
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnWeapon();
 
-		EquippedWeapon = GetWorld()->SpawnActor<ACVWeapon>(EquipedWeaponClasses[CurrentWeaponPlace], FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-		if (EquippedWeapon) {
-			EquippedWeapon->SetOwner(this);
-			EquippedWeapon->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
-		}
+	bDied = false;
+	bWantsToZoom = false;
 
-		bDied = false;
-		bWantsToZoom = false;
-
-		HealthComp->OnHealthChanged.AddDynamic(this, &ACVCharacter::OnHealthChanged);
+	HealthComp->OnHealthChanged.AddDynamic(this, &ACVCharacter::OnHealthChanged);
 }
 
 void ACVCharacter::MoveForward(float Value)
@@ -110,15 +102,7 @@ void ACVCharacter::NextWeapon()
 	CurrentWeaponPlace=(CurrentWeaponPlace+1)%WeaponStackSize;
 	EquippedWeapon->Destroy();
 
-	//Spawn a next weapon
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	EquippedWeapon = GetWorld()->SpawnActor<ACVWeapon>(EquipedWeaponClasses[CurrentWeaponPlace], FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-	if (EquippedWeapon) {
-		EquippedWeapon->SetOwner(this);
-		EquippedWeapon->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
-	}
+	SpawnWeapon();
 	
 }
 
@@ -127,6 +111,13 @@ void ACVCharacter::PreviousWeapon()
 	CurrentWeaponPlace = (CurrentWeaponPlace - 1 + WeaponStackSize) % WeaponStackSize;
 	EquippedWeapon->Destroy();
 
+	SpawnWeapon();
+	
+}
+
+
+void ACVCharacter::SpawnWeapon()
+{
 	//Spawn a next weapon
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -136,9 +127,7 @@ void ACVCharacter::PreviousWeapon()
 		EquippedWeapon->SetOwner(this);
 		EquippedWeapon->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
-	
 }
-
 
 void ACVCharacter::OnHealthChanged(UCVHealthComponent* OwningHealthComp, float Health, float HealthDelta,
 	const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
