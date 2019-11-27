@@ -13,6 +13,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "DrawDebugHelpers.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
 ACVProjectile::ACVProjectile()
@@ -33,7 +34,13 @@ ACVProjectile::ACVProjectile()
 	RadialForceComp->bImpulseVelChange = true;
 	RadialForceComp->bAutoActivate = false;
 	RadialForceComp->bIgnoreOwningActor = true;
-	
+
+	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("MovementComponent"));
+	MovementComp->bShouldBounce = true;
+	MovementComp->bSimulationEnabled = true;
+	MovementComp->bSweepCollision = true;
+	MovementComp->InitialSpeed = 1500.0f;
+	MovementComp->MaxSpeed = 1500.0f;
 	
 	BaseDamage = 50.0f;
 	ExplosionDelay = 1.0f;

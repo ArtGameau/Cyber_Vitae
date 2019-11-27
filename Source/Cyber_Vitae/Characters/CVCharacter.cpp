@@ -3,13 +3,14 @@
 
 #include "CVCharacter.h"
 #include "Cyber_Vitae.h"
+#include "Weapons/CVWeapon.h"
+#include "Interactive/CVInteractiveActor.h"
 #include "Components/CVHealthComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Weapons/CVWeapon.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 
@@ -99,11 +100,10 @@ void ACVCharacter::EndZoom()
 
 void ACVCharacter::NextWeapon()
 {
-	CurrentWeaponPlace=(CurrentWeaponPlace+1)%WeaponStackSize;
+	CurrentWeaponPlace=(CurrentWeaponPlace + 1 ) % WeaponStackSize;
 	EquippedWeapon->Destroy();
 
 	SpawnWeapon();
-	
 }
 
 void ACVCharacter::PreviousWeapon()
@@ -111,8 +111,14 @@ void ACVCharacter::PreviousWeapon()
 	CurrentWeaponPlace = (CurrentWeaponPlace - 1 + WeaponStackSize) % WeaponStackSize;
 	EquippedWeapon->Destroy();
 
-	SpawnWeapon();
-	
+	SpawnWeapon();	
+}
+
+void ACVCharacter::Interact()
+{
+	if (CurrentInteractive) {
+		CurrentInteractive->Interact(this);
+	}
 }
 
 
@@ -127,6 +133,35 @@ void ACVCharacter::SpawnWeapon()
 		EquippedWeapon->SetOwner(this);
 		EquippedWeapon->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
+}
+
+//check if we are seeing any interactable actors
+void ACVCharacter::CheckForInteractables()
+{
+
+	
+	FVector TraceStart = CameraComp->GetComponentLocation();
+	FVector ViewDirection = CameraComp->GetComponentRotation().Vector();
+	FVector TraceEnd = TraceStart + (ViewDirection * 700);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+	QueryParams.bTraceComplex = true;
+
+	FHitResult Hit;
+	if (GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+	{
+		ACVInteractiveActor* Interactive = Cast<ACVInteractiveActor>(Hit.GetActor());
+		if(Interactive)
+		{
+			CurrentInteractive = Interactive;
+			return;
+		}
+	}
+
+	//if we didn't hit anything current interactive is null pointer
+	CurrentInteractive = nullptr;
+	
 }
 
 void ACVCharacter::OnHealthChanged(UCVHealthComponent* OwningHealthComp, float Health, float HealthDelta,
@@ -167,6 +202,8 @@ void ACVCharacter::Tick(float DeltaTime)
 		ZoomedCameraComp->bIsActive = false;
 		CameraComp->bIsActive = true;
 	}
+
+	CheckForInteractables();
 	
 }
 
@@ -194,6 +231,7 @@ void ACVCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("SwitchUp", IE_Pressed, this, &ACVCharacter::NextWeapon);
 	PlayerInputComponent->BindAction("SwitchDown", IE_Released, this, &ACVCharacter::PreviousWeapon);
 
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACVCharacter::Interact);
 }
 
 void ACVCharacter::StartFire()
