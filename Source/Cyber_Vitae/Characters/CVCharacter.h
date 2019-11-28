@@ -12,6 +12,7 @@ class USpringArmComponent;
 class ACVWeapon;
 class UCVHealthComponent;
 class ACVInteractiveActor;
+class UCVInventoryComponent;
 
 USTRUCT(BlueprintType)
 struct FInventoryItem: public FTableRowBase
@@ -105,6 +106,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	ACVWeapon* EquippedWeapon;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		UCVInventoryComponent* InventoryComp;
+
 	void SpawnWeapon();
 
 	int32 CurrentWeaponPlace;
@@ -155,4 +159,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StopFire();
 
+	UFUNCTION(BlueprintCallable, Category = "Player")
+		void AddToInventory(FName ID);
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+		TArray<FInventoryItem> GetInventory();
 };

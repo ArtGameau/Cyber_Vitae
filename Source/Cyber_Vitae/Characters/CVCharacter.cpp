@@ -6,6 +6,7 @@
 #include "Weapons/CVWeapon.h"
 #include "Interactive/CVInteractiveActor.h"
 #include "Components/CVHealthComponent.h"
+#include "Components/CVInventoryComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -37,6 +38,8 @@ ACVCharacter::ACVCharacter()
 	ZoomedCameraComp->bIsActive=false;
 
 	HealthComp = CreateDefaultSubobject<UCVHealthComponent>(TEXT("HealthComp"));
+
+	InventoryComp = CreateDefaultSubobject<UCVInventoryComponent>(TEXT("InventoryComp"));
 	
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
@@ -242,6 +245,16 @@ void ACVCharacter::StartFire()
 void ACVCharacter::StopFire()
 {
 	EquippedWeapon->StopFire();
+}
+
+void ACVCharacter::AddToInventory(FName ID)
+{
+	InventoryComp->Add(ID);
+}
+
+TArray<FInventoryItem> ACVCharacter::GetInventory()
+{
+	return InventoryComp->GetInventory();
 }
 
 

@@ -3,3 +3,7 @@
 
 #include "CVGameMode.h"
 
+UDataTable* ACVGameMode::GetItemDB() const
+{
+	return ItemDB;
+}

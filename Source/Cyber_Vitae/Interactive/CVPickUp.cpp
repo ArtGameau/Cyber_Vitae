@@ -2,6 +2,7 @@
 
 
 #include "CVPickUp.h"
+#include "Characters/CVCharacter.h"
 
 ACVPickUp::ACVPickUp()
 {
@@ -10,6 +11,7 @@ ACVPickUp::ACVPickUp()
 
 void ACVPickUp::Interact(ACVCharacter* Character)
 {
+	Character->AddToInventory(ItemID);
 	Destroy();
 }
 
