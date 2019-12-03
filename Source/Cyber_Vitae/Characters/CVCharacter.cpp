@@ -257,5 +257,10 @@ TArray<FInventoryItem> ACVCharacter::GetInventory()
 	return InventoryComp->GetInventory();
 }
 
+int32 ACVCharacter::GetInventoryCount(FName ID)
+{
+	return InventoryComp->GetItemCount(ID);
+}
+
 
 

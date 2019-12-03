@@ -34,7 +34,10 @@ void UCVInventoryComponent::Add(FName ID)
 
 		if(ItemToAdd)
 		{
-			Inventory.Add(*ItemToAdd);
+			if(!Inventory.Contains(*ItemToAdd))
+			{
+				Inventory.Add(*ItemToAdd);
+			}
 			if(InvCount.Contains(ID))
 			{
 				InvCount[ID]++;
@@ -78,6 +81,16 @@ TArray<FInventoryItem> UCVInventoryComponent::GetInventory()
 {
 	return Inventory;
 }
+
+int32 UCVInventoryComponent::GetItemCount(FName ID)
+{
+	if (InvCount.Contains(ID)) {
+		return InvCount[ID];
+	}
+	else
+		return 0;
+}
+
 
 
 

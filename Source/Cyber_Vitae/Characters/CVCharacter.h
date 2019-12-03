@@ -164,4 +164,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 		TArray<FInventoryItem> GetInventory();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+		int32 GetInventoryCount(FName ID);
 };

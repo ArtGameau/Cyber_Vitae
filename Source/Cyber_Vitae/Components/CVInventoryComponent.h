@@ -36,5 +36,8 @@ public:
 	UFUNCTION()
 		TArray<FInventoryItem> GetInventory();
 
+	UFUNCTION()
+	int32 GetItemCount(FName  ID);
+
 		
 };
