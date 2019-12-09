@@ -13,6 +13,7 @@ class ACVWeapon;
 class UCVHealthComponent;
 class ACVInteractiveActor;
 class UCVInventoryComponent;
+class ACVBaseEffect;
 
 USTRUCT(BlueprintType)
 struct FInventoryItem: public FTableRowBase
@@ -34,6 +35,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class ACVInteractiveActor> ItemPickUp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ACVBaseEffect> ItemEffect;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText Name;
@@ -87,6 +91,9 @@ protected:
 	void PreviousWeapon();
 
 	void Interact();
+
+	void StartFire();
+	void StopFire();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UCVHealthComponent* HealthComp;
@@ -143,9 +150,20 @@ protected:
 
 	void CheckForInteractables();
 
+	void SetZoom();
+
 	UPROPERTY(BlueprintReadOnly, Category = "Interactive")
 	ACVInteractiveActor* CurrentInteractive;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Effect")
+		TSubclassOf<class ACVBaseEffect> CurrentEffectClass;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Effect")
+		ACVBaseEffect* CurrentEffect;
+
+	UFUNCTION(BlueprintCallable)
+	void UseEffect();
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -153,18 +171,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	void StartFire();
 
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	void StopFire();
-
-	UFUNCTION(BlueprintCallable, Category = "Player")
-		void AddToInventory(FName ID);
-
-	UFUNCTION(BlueprintCallable, Category = "Player")
-		TArray<FInventoryItem> GetInventory();
-
-	UFUNCTION(BlueprintCallable, Category = "Player")
-		int32 GetInventoryCount(FName ID);
 };

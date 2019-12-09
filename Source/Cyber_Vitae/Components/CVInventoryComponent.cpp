@@ -4,7 +4,6 @@
 #include "CVInventoryComponent.h"
 #include "CVGameMode.h"
 #include "Engine/World.h"
-#include <string>
 
 
 // Sets default values for this component's properties
@@ -47,7 +46,7 @@ void UCVInventoryComponent::Add(FName ID)
 				InvCount.Add(ID, 1);
 			}
 
-			UE_LOG(LogTemp, Log, TEXT("Added new idem to inventory. %s") ,*FString::FromInt(InvCount[ID]) );
+			//UE_LOG(LogTemp, Log, TEXT("Added new idem to inventory. %s") ,*FString::FromInt(InvCount[ID]) );
 		}
 	}
 }

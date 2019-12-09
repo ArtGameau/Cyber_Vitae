@@ -41,4 +41,6 @@ public:
 	 * can be implemented in blueprints if needed
 	 */
 	virtual	void Interact(ACVCharacter* Character);
+
+	virtual UStaticMeshComponent* GetMesh();
 };

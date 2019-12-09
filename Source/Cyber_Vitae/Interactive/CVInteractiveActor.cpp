@@ -32,5 +32,10 @@ void ACVInteractiveActor::Interact(ACVCharacter* Character)
 {
 }
 
+UStaticMeshComponent* ACVInteractiveActor::GetMesh()
+{
+	return MeshComp;
+}
+
 
 

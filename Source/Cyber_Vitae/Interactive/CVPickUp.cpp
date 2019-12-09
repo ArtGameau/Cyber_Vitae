@@ -3,6 +3,7 @@
 
 #include "CVPickUp.h"
 #include "Characters/CVCharacter.h"
+#include "Components/CVInventoryComponent.h"
 
 ACVPickUp::ACVPickUp()
 {
@@ -11,7 +12,12 @@ ACVPickUp::ACVPickUp()
 
 void ACVPickUp::Interact(ACVCharacter* Character)
 {
-	Character->AddToInventory(ItemID);
+	//Character->AddToInventory(ItemID);
+
+	UCVInventoryComponent* Inventory= Cast<UCVInventoryComponent>(Character->GetComponentByClass(UCVInventoryComponent::StaticClass()));
+	
+	Inventory->Add(ItemID);
+
 	Destroy();
 }
 

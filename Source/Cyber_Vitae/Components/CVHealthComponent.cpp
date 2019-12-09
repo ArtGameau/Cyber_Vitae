@@ -105,6 +105,9 @@ void UCVHealthComponent::Heal(float HealAmount)
 
 	Health = FMath::Clamp(Health+HealAmount, 0.0f, DefaultHealth);
 
+	UE_LOG(LogTemp, Log, TEXT("Health Changed: %s"), *FString::SanitizeFloat(Health));
+
+
 	OnHealthChanged.Broadcast(this,Health,-HealAmount,nullptr,nullptr,nullptr);
 }
 

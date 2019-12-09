@@ -8,8 +8,10 @@
 #include "Components/CVHealthComponent.h"
 #include "Components/CVInventoryComponent.h"
 #include "Components/InputComponent.h"
+#include "Effects/CVBaseEffect.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Engine/World.h"
@@ -47,7 +49,7 @@ ACVCharacter::ACVCharacter()
 
 	WeaponAttachSocketName = "WeaponSocket";
 
-	ZoomedFOV =25.0f;
+	ZoomedFOV =60.0f;
 	ZoomInterpSpeed = 20;
 	
 	CurrentWeaponPlace = 0;
@@ -142,7 +144,6 @@ void ACVCharacter::SpawnWeapon()
 void ACVCharacter::CheckForInteractables()
 {
 
-	
 	FVector TraceStart = CameraComp->GetComponentLocation();
 	FVector ViewDirection = CameraComp->GetComponentRotation().Vector();
 	FVector TraceEnd = TraceStart + (ViewDirection * 700);
@@ -157,14 +158,38 @@ void ACVCharacter::CheckForInteractables()
 		ACVInteractiveActor* Interactive = Cast<ACVInteractiveActor>(Hit.GetActor());
 		if(Interactive)
 		{
+			//setting up outline effect
+			Interactive->GetMesh()->SetRenderCustomDepth(true);
+			Interactive->GetMesh()->SetCustomDepthStencilValue(253);
+
 			CurrentInteractive = Interactive;
 			return;
 		}
 	}
 
-	//if we didn't hit anything current interactive is null pointer
-	CurrentInteractive = nullptr;
+	if (CurrentInteractive) {
+		
+		//unable outline effect if we are not looking at object anymore
+		CurrentInteractive->GetMesh()->SetRenderCustomDepth(false);
+
+		//if we didn't hit anything current interactive is null pointer
+		CurrentInteractive = nullptr;
+	}
 	
+}
+
+void ACVCharacter::SetZoom()
+{
+	if (bWantsToZoom && EquippedWeapon->bCanZoom) {
+		ZoomedCameraComp->bIsActive = true;
+		ZoomedCameraComp->SetFieldOfView(ZoomedFOV);
+		CameraComp->bIsActive = false;
+	}
+	else
+	{
+		ZoomedCameraComp->bIsActive = false;
+		CameraComp->bIsActive = true;
+	}
 }
 
 void ACVCharacter::OnHealthChanged(UCVHealthComponent* OwningHealthComp, float Health, float HealthDelta,
@@ -179,14 +204,37 @@ void ACVCharacter::OnHealthChanged(UCVHealthComponent* OwningHealthComp, float H
 
 		GetMovementComponent()->StopMovementImmediately();
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		EquippedWeapon->SetActorEnableCollision(ECollisionEnabled::NoCollision);
 		bDied = true;
 
 		UE_LOG(LogTemp, Log, TEXT("Actor is killed!"));
 
 		DetachFromControllerPendingDestroy();
 		SetLifeSpan(10.0f);
-		EquippedWeapon->SetLifeSpan(10.0f);
+
+		//only if some weapon is equipped set it's destroy time and no collision
+		if(EquippedWeapon)
+		{
+			EquippedWeapon->SetActorEnableCollision(ECollisionEnabled::NoCollision);
+			EquippedWeapon->SetLifeSpan(10.0f);
+		}
+	}
+}
+
+void ACVCharacter::UseEffect()
+{
+	if(CurrentEffectClass)
+	{
+		CurrentEffect =Cast<ACVBaseEffect> (GetWorld()->SpawnActor(CurrentEffectClass));
+		if (CurrentEffect) {
+			CurrentEffect->SetOwner(this);
+		}
+		UE_LOG(LogTemp, Log, TEXT("Effect class spawn!"));
+
+		CurrentEffect->Use();
+
+		CurrentEffect->Destroy();
+
+		CurrentEffectClass = nullptr;
 	}
 }
 
@@ -195,16 +243,7 @@ void ACVCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 		
-	if (bWantsToZoom && EquippedWeapon->bCanZoom) {
-		ZoomedCameraComp->bIsActive = true;
-		ZoomedCameraComp->SetFieldOfView(ZoomedFOV);
-		CameraComp->bIsActive = false;
-	}
-	else
-	{
-		ZoomedCameraComp->bIsActive = false;
-		CameraComp->bIsActive = true;
-	}
+	SetZoom();
 
 	CheckForInteractables();
 	
@@ -246,21 +285,5 @@ void ACVCharacter::StopFire()
 {
 	EquippedWeapon->StopFire();
 }
-
-void ACVCharacter::AddToInventory(FName ID)
-{
-	InventoryComp->Add(ID);
-}
-
-TArray<FInventoryItem> ACVCharacter::GetInventory()
-{
-	return InventoryComp->GetInventory();
-}
-
-int32 ACVCharacter::GetInventoryCount(FName ID)
-{
-	return InventoryComp->GetItemCount(ID);
-}
-
 
 

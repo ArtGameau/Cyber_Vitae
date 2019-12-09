@@ -31,12 +31,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Add(FName ID);
 	
+	UFUNCTION(BlueprintCallable)
 	void Remove(FName  ID);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		TArray<FInventoryItem> GetInventory();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	int32 GetItemCount(FName  ID);
 
 		
