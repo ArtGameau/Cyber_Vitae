@@ -42,5 +42,7 @@ public:
 	 */
 	virtual	void Interact(ACVCharacter* Character);
 
+	bool bIsInUse;
+
 	virtual UStaticMeshComponent* GetMesh();
 };

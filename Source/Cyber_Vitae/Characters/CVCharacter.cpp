@@ -15,6 +15,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Engine/World.h"
+#include "TimerManager.h"
 #include "GameFramework/PlayerController.h"
 
 
@@ -121,7 +122,9 @@ void ACVCharacter::PreviousWeapon()
 
 void ACVCharacter::Interact()
 {
-	if (CurrentInteractive) {
+	//interact only if we are focused on interactive actor and that actor is not already in use
+	//prevents same pickup actor to be picked up twice when fast button press
+	if (CurrentInteractive && !CurrentInteractive->bIsInUse) {
 		CurrentInteractive->Interact(this);
 	}
 }
@@ -158,16 +161,24 @@ void ACVCharacter::CheckForInteractables()
 		ACVInteractiveActor* Interactive = Cast<ACVInteractiveActor>(Hit.GetActor());
 		if(Interactive)
 		{
-			//setting up outline effect
-			Interactive->GetMesh()->SetRenderCustomDepth(true);
-			Interactive->GetMesh()->SetCustomDepthStencilValue(253);
+			if (Interactive != CurrentInteractive) {
 
-			CurrentInteractive = Interactive;
-			return;
+				//setting up outline effect
+				Interactive->GetMesh()->SetRenderCustomDepth(true);
+				Interactive->GetMesh()->SetCustomDepthStencilValue(253);
+
+				//disable outline effect on old focused interactive object
+				if (CurrentInteractive) {
+					CurrentInteractive->GetMesh()->SetRenderCustomDepth(false);
+				}
+
+				CurrentInteractive = Interactive;
+				return;
+			}
 		}
 	}
 
-	if (CurrentInteractive) {
+	else if (CurrentInteractive) {
 		
 		//unable outline effect if we are not looking at object anymore
 		CurrentInteractive->GetMesh()->SetRenderCustomDepth(false);
@@ -231,11 +242,14 @@ void ACVCharacter::UseEffect()
 		UE_LOG(LogTemp, Log, TEXT("Effect class spawn!"));
 
 		CurrentEffect->Use();
-
-		CurrentEffect->Destroy();
-
-		CurrentEffectClass = nullptr;
 	}
+}
+
+void ACVCharacter::DestroyEffect()
+{
+	CurrentEffect->Destroy();
+
+	CurrentEffectClass = nullptr;
 }
 
 // Called every frame
@@ -274,6 +288,17 @@ void ACVCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("SwitchDown", IE_Released, this, &ACVCharacter::PreviousWeapon);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACVCharacter::Interact);
+}
+
+void ACVCharacter::AddAmmo(int32 Num, TSubclassOf<ACVWeapon> WeaponType)
+{
+	if (WeaponType == EquipedWeaponClasses[CurrentWeaponPlace]) {
+
+		EquippedWeapon->AddAmmo(Num);
+	}
+	else {
+		UE_LOG(LogTemp, Log, TEXT("Wrong Weapon Type!"));
+	}
 }
 
 void ACVCharacter::StartFire()

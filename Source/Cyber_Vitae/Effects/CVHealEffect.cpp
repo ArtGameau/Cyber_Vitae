@@ -31,6 +31,16 @@ void ACVHealEffect::Use()
 
 		UE_LOG(LogTemp, Log, TEXT("Heal effect done!"));
 
-		bIsFinished = true;
+	}
+}
+
+void ACVHealEffect::EndEffect()
+{
+	AActor* ThisOwner = GetOwner();
+
+	ACVCharacter* MyOwner = Cast<ACVCharacter>(ThisOwner);
+
+	if (MyOwner) {
+		MyOwner->DestroyEffect();
 	}
 }

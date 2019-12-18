@@ -15,6 +15,17 @@ class ACVInteractiveActor;
 class UCVInventoryComponent;
 class ACVBaseEffect;
 
+/*
+UENUM(BlueprintType)
+enum class EWeaponTypeEnum :uint8 {
+
+	WE_Riffle			UMETA(DisplayName="Riffle"),
+	WE_Sniper			UMETA(DisplayName="Sniper"),
+	WE_GrenadeLauncher	UMETA(DisplayName="GrenadeLauncher"),
+	WE_Pistol			UMETA(DisplayName="Pistol")
+};
+*/
+
 USTRUCT(BlueprintType)
 struct FInventoryItem: public FTableRowBase
 {
@@ -163,6 +174,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void UseEffect();
+
 	
 public:	
 	// Called every frame
@@ -171,5 +183,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	//Called to fill weapon magazine
+	void AddAmmo(int32 Num, TSubclassOf<ACVWeapon> WeaponType);
+
+	void DestroyEffect();
 
 };

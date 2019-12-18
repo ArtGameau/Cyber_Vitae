@@ -25,4 +25,6 @@ protected:
 
 public:
 		virtual void Use() override;
+
+		virtual void EndEffect() override;
 };

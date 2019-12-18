@@ -14,6 +14,8 @@ void ACVPickUp::Interact(ACVCharacter* Character)
 {
 	//Character->AddToInventory(ItemID);
 
+	bIsInUse = true;
+
 	UCVInventoryComponent* Inventory= Cast<UCVInventoryComponent>(Character->GetComponentByClass(UCVInventoryComponent::StaticClass()));
 	
 	Inventory->Add(ItemID);

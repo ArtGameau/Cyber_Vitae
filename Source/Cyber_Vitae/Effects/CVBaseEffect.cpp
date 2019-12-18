@@ -7,7 +7,7 @@
 // Sets default values
 ACVBaseEffect::ACVBaseEffect()
 {
-	
+	Duration = 0.0f;
 }
 
 // Called when the game starts or when spawned
@@ -18,8 +18,12 @@ void ACVBaseEffect::BeginPlay()
 
 void ACVBaseEffect::Use()
 {
-	bIsFinished = true;
 }
+
+void ACVBaseEffect::EndEffect()
+{
+}
+
 
 
 

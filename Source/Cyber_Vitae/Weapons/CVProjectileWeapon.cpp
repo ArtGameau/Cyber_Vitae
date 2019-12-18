@@ -40,6 +40,8 @@ void ACVProjectileWeapon::Fire()
 		if (MuzzleEffect) {
 			UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, MeshComp, MuzzleSocketName);
 		}
+
+		CurrentAmmo--;
 	}
 }
 

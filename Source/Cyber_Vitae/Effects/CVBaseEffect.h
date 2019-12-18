@@ -21,11 +21,17 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+
+	//called when effect begins it's use
+	FTimerHandle TimerHandle_EffectDuration;
+
 public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void Use();
-	
-	bool bIsFinished;
 
+	virtual void EndEffect();
+
+	UPROPERTY(EditDefaultsOnly, Category="Effect")
+	float Duration;
 };

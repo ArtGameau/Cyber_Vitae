@@ -48,6 +48,12 @@ protected:
 
 	void PlayImpactEffect(EPhysicalSurface SurfaceType, FVector ImpactPoint);
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+		int32 MagazineSize;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	int32 CurrentAmmo;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float BaseDamage;
 
@@ -83,4 +89,6 @@ public:
 	void StartFire();
 
 	void StopFire();
+
+	void AddAmmo(int32 Num);
 };

@@ -29,6 +29,8 @@ ACVWeapon::ACVWeapon()
 	TracerTargetName = "BeamEnd";
 
 	bCanZoom = false;
+
+	MagazineSize = 50;
 }
 
 // Called when the game starts or when spawned
@@ -37,6 +39,8 @@ void ACVWeapon::BeginPlay()
 	Super::BeginPlay();
 
 	TimeBetweenShots = 60 / RateOfFire;
+
+	CurrentAmmo = MagazineSize;
 	
 }
 
@@ -46,7 +50,8 @@ void ACVWeapon::Fire()
 	//Trace the world from pawn eyes to crosshair location (center of screen)
 	AActor* MyOwner = GetOwner();
 
-	if (MyOwner) {
+	//fire if weapon has owner and has some ammunition, otherwise do nothing 
+	if (MyOwner && CurrentAmmo>0) {
 		FVector EyeLocation;
 		FRotator EyeRotation;
 		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
@@ -98,6 +103,8 @@ void ACVWeapon::Fire()
 		PlayFireEffect(TracerEndPoint);
 
 		LastFireTime = GetWorld()->TimeSeconds;
+
+		CurrentAmmo--;
 	}
 	
 }
@@ -159,5 +166,10 @@ void ACVWeapon::StartFire()
 void ACVWeapon::StopFire()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
+}
+
+void ACVWeapon::AddAmmo(int32 Num)
+{
+	CurrentAmmo=FMath::Clamp(CurrentAmmo+Num, 0,MagazineSize);
 }
 
