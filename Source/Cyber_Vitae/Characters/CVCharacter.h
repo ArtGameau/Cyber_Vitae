@@ -103,6 +103,8 @@ protected:
 
 	void Interact();
 
+	void Reload();
+
 	void StartFire();
 	void StopFire();
 
@@ -128,13 +130,16 @@ protected:
 		UCVInventoryComponent* InventoryComp;
 
 	void SpawnWeapon();
+	void SpawnWeapons();
 
 	int32 CurrentWeaponPlace;
 
 	int32 WeaponStackSize;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
-	TArray<TSubclassOf<ACVWeapon>> EquipedWeaponClasses;
+	TArray<TSubclassOf<ACVWeapon>> EquippedWeaponClasses;
+
+	TArray<ACVWeapon*> EquippedWeapons;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 	FName WeaponAttachSocketName;
@@ -184,7 +189,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	//Called to fill weapon magazine
-	void AddAmmo(int32 Num, TSubclassOf<ACVWeapon> WeaponType);
+	void FindAndReload(TSubclassOf<ACVWeapon> WeaponType);
 
 	void DestroyEffect();
 

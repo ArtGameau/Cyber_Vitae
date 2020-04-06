@@ -32,7 +32,7 @@ public:
 	void Add(FName ID);
 	
 	UFUNCTION(BlueprintCallable)
-	void Remove(FName  ID);
+	bool Remove(FName  ID);
 
 	UFUNCTION(BlueprintCallable)
 		TArray<FInventoryItem> GetInventory();

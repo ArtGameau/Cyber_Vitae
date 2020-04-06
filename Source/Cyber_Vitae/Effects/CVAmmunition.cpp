@@ -6,7 +6,6 @@
 #include "Weapons/CVWeapon.h"
 ACVAmmunition::ACVAmmunition() {
 
-	NumOfBullets = 30;
 }
 
 void ACVAmmunition::Use()
@@ -15,6 +14,6 @@ void ACVAmmunition::Use()
 
 	if (MyOwner) {
 
-		MyOwner->AddAmmo(NumOfBullets,WeaponType);
+		MyOwner->FindAndReload(WeaponType);
 	}
 }

@@ -2,6 +2,7 @@
 
 
 #include "CVWeapon.h"
+#include "Characters/CVCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
@@ -41,7 +42,9 @@ void ACVWeapon::BeginPlay()
 	TimeBetweenShots = 60 / RateOfFire;
 
 	CurrentAmmo = MagazineSize;
-	
+
+	SetActorEnableCollision(ECollisionEnabled::NoCollision);
+	MeshComp->SetVisibility(false);
 }
 
 
@@ -168,8 +171,20 @@ void ACVWeapon::StopFire()
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
 
-void ACVWeapon::AddAmmo(int32 Num)
+void ACVWeapon::ActivateWeapon()
 {
-	CurrentAmmo=FMath::Clamp(CurrentAmmo+Num, 0,MagazineSize);
+	MeshComp->SetVisibility(true);
+	SetActorEnableCollision(ECollisionEnabled::QueryAndPhysics);
+}
+
+void ACVWeapon::DeactivateWeapon()
+{
+	MeshComp->SetVisibility(false);
+	SetActorEnableCollision(ECollisionEnabled::NoCollision);
+}
+
+void ACVWeapon::Reload()
+{
+	CurrentAmmo=MagazineSize;
 }
 

@@ -56,7 +56,9 @@ ACVCharacter::ACVCharacter()
 	CurrentWeaponPlace = 0;
 	WeaponStackSize = 4;
 
-	EquipedWeaponClasses.SetNum(WeaponStackSize);
+	EquippedWeaponClasses.SetNum(WeaponStackSize);
+	EquippedWeapons.SetNum(WeaponStackSize);
+
 }
 
 // Called when the game starts or when spawned
@@ -65,8 +67,11 @@ void ACVCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	DefaultFOV = ZoomedCameraComp->FieldOfView;
-	
-	SpawnWeapon();
+
+
+	SpawnWeapons();
+	EquippedWeapon = EquippedWeapons[CurrentWeaponPlace];
+	EquippedWeapon->ActivateWeapon();
 
 	bDied = false;
 	bWantsToZoom = false;
@@ -106,18 +111,20 @@ void ACVCharacter::EndZoom()
 
 void ACVCharacter::NextWeapon()
 {
+	//moving to next weapon
 	CurrentWeaponPlace=(CurrentWeaponPlace + 1 ) % WeaponStackSize;
-	EquippedWeapon->Destroy();
-
-	SpawnWeapon();
+	EquippedWeapon->DeactivateWeapon();
+	EquippedWeapon = EquippedWeapons[CurrentWeaponPlace];
+	EquippedWeapon->ActivateWeapon();	
 }
 
 void ACVCharacter::PreviousWeapon()
 {
+	//moving to previous weapon
 	CurrentWeaponPlace = (CurrentWeaponPlace - 1 + WeaponStackSize) % WeaponStackSize;
-	EquippedWeapon->Destroy();
-
-	SpawnWeapon();	
+	EquippedWeapon->DeactivateWeapon();
+	EquippedWeapon = EquippedWeapons[CurrentWeaponPlace];
+	EquippedWeapon->ActivateWeapon();
 }
 
 void ACVCharacter::Interact()
@@ -129,17 +136,21 @@ void ACVCharacter::Interact()
 	}
 }
 
-
-void ACVCharacter::SpawnWeapon()
+void ACVCharacter::SpawnWeapons()
 {
-	//Spawn a next weapon
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	EquippedWeapon = GetWorld()->SpawnActor<ACVWeapon>(EquipedWeaponClasses[CurrentWeaponPlace], FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-	if (EquippedWeapon) {
-		EquippedWeapon->SetOwner(this);
-		EquippedWeapon->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+	for (int i = 0; i < WeaponStackSize; i++) {
+
+		EquippedWeapons[i] = GetWorld()->SpawnActor<ACVWeapon>(EquippedWeaponClasses[i], FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+		if (EquippedWeapons[i]) {
+
+			UE_LOG(LogTemp, Log, TEXT("Weapon spawned!"));
+
+			EquippedWeapons[i]->SetOwner(this);
+			EquippedWeapons[i]->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+		}
 	}
 }
 
@@ -186,7 +197,6 @@ void ACVCharacter::CheckForInteractables()
 		//if we didn't hit anything current interactive is null pointer
 		CurrentInteractive = nullptr;
 	}
-	
 }
 
 void ACVCharacter::SetZoom()
@@ -202,6 +212,7 @@ void ACVCharacter::SetZoom()
 		CameraComp->bIsActive = true;
 	}
 }
+
 
 void ACVCharacter::OnHealthChanged(UCVHealthComponent* OwningHealthComp, float Health, float HealthDelta,
 	const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
@@ -288,17 +299,32 @@ void ACVCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("SwitchDown", IE_Released, this, &ACVCharacter::PreviousWeapon);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACVCharacter::Interact);
+
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ACVCharacter::Reload);
 }
 
-void ACVCharacter::AddAmmo(int32 Num, TSubclassOf<ACVWeapon> WeaponType)
+void ACVCharacter::FindAndReload(TSubclassOf<ACVWeapon> WeaponType)
 {
-	if (WeaponType == EquipedWeaponClasses[CurrentWeaponPlace]) {
+	int index;
+	if (EquippedWeaponClasses.Find(WeaponType, index)) {
 
-		EquippedWeapon->AddAmmo(Num);
+		EquippedWeapons[index]->Reload();
 	}
 	else {
 		UE_LOG(LogTemp, Log, TEXT("Wrong Weapon Type!"));
 	}
+}
+
+void ACVCharacter::Reload()
+{
+	if (InventoryComp->Remove(EquippedWeapon->AmmoID)) {
+		EquippedWeapon->Reload();
+	}
+	else {
+		UE_LOG(LogTemp, Log, TEXT("You don't have any ammo left!"));
+	}
+
+	//TO DO: add inventory correction when ammo is used
 }
 
 void ACVCharacter::StartFire()

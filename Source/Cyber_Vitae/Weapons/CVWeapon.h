@@ -33,6 +33,10 @@ protected:
 
 	float LastFireTime;
 
+	//leftover ammunition
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+		int32 CurrentAmmo;
+
 	//RPM - Bullets per minute fired by weapon
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float RateOfFire;
@@ -50,9 +54,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 		int32 MagazineSize;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	int32 CurrentAmmo;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float BaseDamage;
@@ -86,9 +87,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 		bool bCanZoom;
 
-	void StartFire();
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+		FName AmmoID;
 
+	void StartFire();
 	void StopFire();
 
-	void AddAmmo(int32 Num);
+	void ActivateWeapon();
+	void DeactivateWeapon();
+
+	void Reload();
 };

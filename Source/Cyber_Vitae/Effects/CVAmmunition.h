@@ -25,8 +25,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Ammunition")
 	TSubclassOf<ACVWeapon> WeaponType;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Ammunition")
-		int32 NumOfBullets;
 public:
 
 		virtual void Use() override;

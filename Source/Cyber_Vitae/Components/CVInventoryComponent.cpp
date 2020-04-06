@@ -51,7 +51,7 @@ void UCVInventoryComponent::Add(FName ID)
 	}
 }
 
-void UCVInventoryComponent::Remove(FName ID)
+bool UCVInventoryComponent::Remove(FName ID)
 {
 	ACVGameMode* GameMode = Cast<ACVGameMode>(GetWorld()->GetAuthGameMode());
 	UDataTable* ItemTable = GameMode->GetItemDB();
@@ -71,9 +71,11 @@ void UCVInventoryComponent::Remove(FName ID)
 					Inventory.Remove(*ItemToRemove);
 					InvCount.Remove(ID);
 				}
+				return true;
 			}
 		}
 	}
+	return false;
 }
 
 TArray<FInventoryItem> UCVInventoryComponent::GetInventory()
