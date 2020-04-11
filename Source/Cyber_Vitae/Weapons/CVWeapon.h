@@ -84,6 +84,15 @@ protected:
 
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FText Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UTexture2D* Thumbnail;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FText Description;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 		bool bCanZoom;
 

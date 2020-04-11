@@ -13,6 +13,7 @@ class ACVWeapon;
 class UCVHealthComponent;
 class ACVInteractiveActor;
 class UCVInventoryComponent;
+class UCVWeaponsComponent;
 class ACVBaseEffect;
 
 /*
@@ -25,6 +26,9 @@ enum class EWeaponTypeEnum :uint8 {
 	WE_Pistol			UMETA(DisplayName="Pistol")
 };
 */
+
+
+//STRUCT INVENTORY ITEM
 
 USTRUCT(BlueprintType)
 struct FInventoryItem: public FTableRowBase
@@ -129,20 +133,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UCVInventoryComponent* InventoryComp;
 
-	void SpawnWeapon();
-	void SpawnWeapons();
-
-	int32 CurrentWeaponPlace;
-
-	int32 WeaponStackSize;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Player")
-	TArray<TSubclassOf<ACVWeapon>> EquippedWeaponClasses;
-
-	TArray<ACVWeapon*> EquippedWeapons;
-
-	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
-	FName WeaponAttachSocketName;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		UCVWeaponsComponent* WeaponsComp;
 
 	UFUNCTION()
 		void OnHealthChanged(UCVHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType,

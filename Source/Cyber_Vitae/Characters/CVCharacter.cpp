@@ -7,6 +7,7 @@
 #include "Interactive/CVInteractiveActor.h"
 #include "Components/CVHealthComponent.h"
 #include "Components/CVInventoryComponent.h"
+#include "Components/CVWeaponsComponent.h"
 #include "Components/InputComponent.h"
 #include "Effects/CVBaseEffect.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -22,7 +23,7 @@
 // Sets default values
 ACVCharacter::ACVCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
@@ -34,31 +35,24 @@ ACVCharacter::ACVCharacter()
 
 	ZoomedSpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("ZoomedSpringArmComp"));
 	ZoomedSpringArmComp->bUsePawnControlRotation = true;
-	ZoomedSpringArmComp->SetupAttachment(Cast<USceneComponent>(GetMesh()),"HeadSocket");
+	ZoomedSpringArmComp->SetupAttachment(Cast<USceneComponent>(GetMesh()), "HeadSocket");
 
 	ZoomedCameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("ZoomedCameraComp"));
 	ZoomedCameraComp->SetupAttachment(ZoomedSpringArmComp);
-	ZoomedCameraComp->bIsActive=false;
+	ZoomedCameraComp->bIsActive = false;
 
 	HealthComp = CreateDefaultSubobject<UCVHealthComponent>(TEXT("HealthComp"));
 
 	InventoryComp = CreateDefaultSubobject<UCVInventoryComponent>(TEXT("InventoryComp"));
-	
+
+	WeaponsComp = CreateDefaultSubobject<UCVWeaponsComponent>(TEXT("WeaponsComp"));
+
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
-	WeaponAttachSocketName = "WeaponSocket";
-
-	ZoomedFOV =60.0f;
+	ZoomedFOV = 60.0f;
 	ZoomInterpSpeed = 20;
-	
-	CurrentWeaponPlace = 0;
-	WeaponStackSize = 4;
-
-	EquippedWeaponClasses.SetNum(WeaponStackSize);
-	EquippedWeapons.SetNum(WeaponStackSize);
-
 }
 
 // Called when the game starts or when spawned
@@ -68,9 +62,10 @@ void ACVCharacter::BeginPlay()
 
 	DefaultFOV = ZoomedCameraComp->FieldOfView;
 
-
+	/*
 	SpawnWeapons();
-	EquippedWeapon = EquippedWeapons[CurrentWeaponPlace];
+	*/
+	EquippedWeapon = WeaponsComp->FirstWeapon();
 	EquippedWeapon->ActivateWeapon();
 
 	bDied = false;
@@ -111,20 +106,16 @@ void ACVCharacter::EndZoom()
 
 void ACVCharacter::NextWeapon()
 {
-	//moving to next weapon
-	CurrentWeaponPlace=(CurrentWeaponPlace + 1 ) % WeaponStackSize;
-	EquippedWeapon->DeactivateWeapon();
-	EquippedWeapon = EquippedWeapons[CurrentWeaponPlace];
-	EquippedWeapon->ActivateWeapon();	
+	if (WeaponsComp) {
+		EquippedWeapon=WeaponsComp->NextWeapon();
+	}
 }
 
 void ACVCharacter::PreviousWeapon()
 {
-	//moving to previous weapon
-	CurrentWeaponPlace = (CurrentWeaponPlace - 1 + WeaponStackSize) % WeaponStackSize;
-	EquippedWeapon->DeactivateWeapon();
-	EquippedWeapon = EquippedWeapons[CurrentWeaponPlace];
-	EquippedWeapon->ActivateWeapon();
+	if (WeaponsComp) {
+		EquippedWeapon = WeaponsComp->PreviousWeapon();
+	}
 }
 
 void ACVCharacter::Interact()
@@ -133,24 +124,6 @@ void ACVCharacter::Interact()
 	//prevents same pickup actor to be picked up twice when fast button press
 	if (CurrentInteractive && !CurrentInteractive->bIsInUse) {
 		CurrentInteractive->Interact(this);
-	}
-}
-
-void ACVCharacter::SpawnWeapons()
-{
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	for (int i = 0; i < WeaponStackSize; i++) {
-
-		EquippedWeapons[i] = GetWorld()->SpawnActor<ACVWeapon>(EquippedWeaponClasses[i], FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-		if (EquippedWeapons[i]) {
-
-			UE_LOG(LogTemp, Log, TEXT("Weapon spawned!"));
-
-			EquippedWeapons[i]->SetOwner(this);
-			EquippedWeapons[i]->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
-		}
 	}
 }
 
@@ -305,14 +278,7 @@ void ACVCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void ACVCharacter::FindAndReload(TSubclassOf<ACVWeapon> WeaponType)
 {
-	int index;
-	if (EquippedWeaponClasses.Find(WeaponType, index)) {
-
-		EquippedWeapons[index]->Reload();
-	}
-	else {
-		UE_LOG(LogTemp, Log, TEXT("Wrong Weapon Type!"));
-	}
+	WeaponsComp->FindAndReload(WeaponType);
 }
 
 void ACVCharacter::Reload()
@@ -323,8 +289,6 @@ void ACVCharacter::Reload()
 	else {
 		UE_LOG(LogTemp, Log, TEXT("You don't have any ammo left!"));
 	}
-
-	//TO DO: add inventory correction when ammo is used
 }
 
 void ACVCharacter::StartFire()

@@ -32,6 +32,9 @@ ACVWeapon::ACVWeapon()
 	bCanZoom = false;
 
 	MagazineSize = 50;
+
+	Name = FText::FromString("No name");
+	Description = FText::FromString("Please enter description for this item.");
 }
 
 // Called when the game starts or when spawned
