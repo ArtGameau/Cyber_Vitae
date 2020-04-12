@@ -33,6 +33,10 @@ protected:
 
 	float LastFireTime;
 
+	//leftover ammunition
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+		int32 CurrentAmmo;
+
 	//RPM - Bullets per minute fired by weapon
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float RateOfFire;
@@ -47,6 +51,9 @@ protected:
 	void PlayFireEffect(FVector EndPoint);
 
 	void PlayImpactEffect(EPhysicalSurface SurfaceType, FVector ImpactPoint);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+		int32 MagazineSize;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float BaseDamage;
@@ -77,10 +84,26 @@ protected:
 
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FText Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UTexture2D* Thumbnail;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FText Description;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 		bool bCanZoom;
 
-	void StartFire();
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+		FName AmmoID;
 
+	void StartFire();
 	void StopFire();
+
+	void ActivateWeapon();
+	void DeactivateWeapon();
+
+	void Reload();
 };

@@ -25,7 +25,7 @@ void ACVProjectileWeapon::Fire()
 {
 	AActor* MyOwner = GetOwner();
 
-	if (MyOwner && ProjectileClass) {
+	if (MyOwner && ProjectileClass && CurrentAmmo) {
 		FVector EyeLocation;
 		FRotator EyeRotation;
 		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
@@ -40,6 +40,8 @@ void ACVProjectileWeapon::Fire()
 		if (MuzzleEffect) {
 			UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, MeshComp, MuzzleSocketName);
 		}
+
+		CurrentAmmo--;
 	}
 }
 

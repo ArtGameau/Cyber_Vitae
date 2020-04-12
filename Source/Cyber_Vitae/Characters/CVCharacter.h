@@ -4,12 +4,81 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Engine/DataTable.h"
 #include "CVCharacter.generated.h"
 
 class UCameraComponent;
 class USpringArmComponent;
 class ACVWeapon;
 class UCVHealthComponent;
+class ACVInteractiveActor;
+class UCVInventoryComponent;
+class UCVWeaponsComponent;
+class ACVBaseEffect;
+
+/*
+UENUM(BlueprintType)
+enum class EWeaponTypeEnum :uint8 {
+
+	WE_Riffle			UMETA(DisplayName="Riffle"),
+	WE_Sniper			UMETA(DisplayName="Sniper"),
+	WE_GrenadeLauncher	UMETA(DisplayName="GrenadeLauncher"),
+	WE_Pistol			UMETA(DisplayName="Pistol")
+};
+*/
+
+
+//STRUCT INVENTORY ITEM
+
+USTRUCT(BlueprintType)
+struct FInventoryItem: public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+
+	FInventoryItem()
+	{
+		Name = FText::FromString("No name");
+		Action = FText::FromString("No action");
+		Description = FText::FromString("Please enter description for this item.");
+		
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ItemID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ACVInteractiveActor> ItemPickUp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ACVBaseEffect> ItemEffect;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* Thumbnail;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bCanBeUsed;
+
+	bool operator==(const FInventoryItem Item) const
+	{
+		if(ItemID==Item.ItemID)
+		{
+			return true;
+		}
+
+		return false;
+	}
+};
 
 UCLASS()
 class CYBER_VITAE_API ACVCharacter : public ACharacter
@@ -36,6 +105,13 @@ protected:
 	void NextWeapon();
 	void PreviousWeapon();
 
+	void Interact();
+
+	void Reload();
+
+	void StartFire();
+	void StopFire();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UCVHealthComponent* HealthComp;
 	
@@ -54,17 +130,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	ACVWeapon* EquippedWeapon;
 
-	void SpawnWeapon();
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		UCVInventoryComponent* InventoryComp;
 
-	int32 CurrentWeaponPlace;
-
-	int32 WeaponStackSize;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Player")
-	TArray<TSubclassOf<ACVWeapon>> EquipedWeaponClasses;
-
-	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
-	FName WeaponAttachSocketName;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		UCVWeaponsComponent* WeaponsComp;
 
 	UFUNCTION()
 		void OnHealthChanged(UCVHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType,
@@ -86,6 +156,23 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = 0.1, ClampMax = 100))
 		float ZoomInterpSpeed;
 
+	void CheckForInteractables();
+
+	void SetZoom();
+
+	UPROPERTY(BlueprintReadOnly, Category = "Interactive")
+	ACVInteractiveActor* CurrentInteractive;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Effect")
+		TSubclassOf<class ACVBaseEffect> CurrentEffectClass;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Effect")
+		ACVBaseEffect* CurrentEffect;
+
+	UFUNCTION(BlueprintCallable)
+	void UseEffect();
+
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -93,10 +180,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	void StartFire();
+	//Called to fill weapon magazine
+	void FindAndReload(TSubclassOf<ACVWeapon> WeaponType);
 
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	void StopFire();
+	void DestroyEffect();
 
 };

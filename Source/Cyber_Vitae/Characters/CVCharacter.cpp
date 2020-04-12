@@ -3,21 +3,27 @@
 
 #include "CVCharacter.h"
 #include "Cyber_Vitae.h"
+#include "Weapons/CVWeapon.h"
+#include "Interactive/CVInteractiveActor.h"
 #include "Components/CVHealthComponent.h"
+#include "Components/CVInventoryComponent.h"
+#include "Components/CVWeaponsComponent.h"
 #include "Components/InputComponent.h"
+#include "Effects/CVBaseEffect.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Weapons/CVWeapon.h"
 #include "Engine/World.h"
+#include "TimerManager.h"
 #include "GameFramework/PlayerController.h"
 
 
 // Sets default values
 ACVCharacter::ACVCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
@@ -29,27 +35,24 @@ ACVCharacter::ACVCharacter()
 
 	ZoomedSpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("ZoomedSpringArmComp"));
 	ZoomedSpringArmComp->bUsePawnControlRotation = true;
-	ZoomedSpringArmComp->SetupAttachment(Cast<USceneComponent>(GetMesh()),"HeadSocket");
+	ZoomedSpringArmComp->SetupAttachment(Cast<USceneComponent>(GetMesh()), "HeadSocket");
 
 	ZoomedCameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("ZoomedCameraComp"));
 	ZoomedCameraComp->SetupAttachment(ZoomedSpringArmComp);
-	ZoomedCameraComp->bIsActive=false;
+	ZoomedCameraComp->bIsActive = false;
 
 	HealthComp = CreateDefaultSubobject<UCVHealthComponent>(TEXT("HealthComp"));
-	
+
+	InventoryComp = CreateDefaultSubobject<UCVInventoryComponent>(TEXT("InventoryComp"));
+
+	WeaponsComp = CreateDefaultSubobject<UCVWeaponsComponent>(TEXT("WeaponsComp"));
+
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
-	WeaponAttachSocketName = "WeaponSocket";
-
-	ZoomedFOV =25.0f;
+	ZoomedFOV = 60.0f;
 	ZoomInterpSpeed = 20;
-	
-	CurrentWeaponPlace = 0;
-	WeaponStackSize = 4;
-
-	EquipedWeaponClasses.SetNum(WeaponStackSize);
 }
 
 // Called when the game starts or when spawned
@@ -58,8 +61,12 @@ void ACVCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	DefaultFOV = ZoomedCameraComp->FieldOfView;
-	
-	SpawnWeapon();
+
+	/*
+	SpawnWeapons();
+	*/
+	EquippedWeapon = WeaponsComp->FirstWeapon();
+	EquippedWeapon->ActivateWeapon();
 
 	bDied = false;
 	bWantsToZoom = false;
@@ -99,35 +106,86 @@ void ACVCharacter::EndZoom()
 
 void ACVCharacter::NextWeapon()
 {
-	CurrentWeaponPlace=(CurrentWeaponPlace+1)%WeaponStackSize;
-	EquippedWeapon->Destroy();
-
-	SpawnWeapon();
-	
+	if (WeaponsComp) {
+		EquippedWeapon=WeaponsComp->NextWeapon();
+	}
 }
 
 void ACVCharacter::PreviousWeapon()
 {
-	CurrentWeaponPlace = (CurrentWeaponPlace - 1 + WeaponStackSize) % WeaponStackSize;
-	EquippedWeapon->Destroy();
-
-	SpawnWeapon();
-	
-}
-
-
-void ACVCharacter::SpawnWeapon()
-{
-	//Spawn a next weapon
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	EquippedWeapon = GetWorld()->SpawnActor<ACVWeapon>(EquipedWeaponClasses[CurrentWeaponPlace], FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-	if (EquippedWeapon) {
-		EquippedWeapon->SetOwner(this);
-		EquippedWeapon->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+	if (WeaponsComp) {
+		EquippedWeapon = WeaponsComp->PreviousWeapon();
 	}
 }
+
+void ACVCharacter::Interact()
+{
+	//interact only if we are focused on interactive actor and that actor is not already in use
+	//prevents same pickup actor to be picked up twice when fast button press
+	if (CurrentInteractive && !CurrentInteractive->bIsInUse) {
+		CurrentInteractive->Interact(this);
+	}
+}
+
+//check if we are seeing any interactable actors
+void ACVCharacter::CheckForInteractables()
+{
+
+	FVector TraceStart = CameraComp->GetComponentLocation();
+	FVector ViewDirection = CameraComp->GetComponentRotation().Vector();
+	FVector TraceEnd = TraceStart + (ViewDirection * 700);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+	QueryParams.bTraceComplex = true;
+
+	FHitResult Hit;
+	if (GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+	{
+		ACVInteractiveActor* Interactive = Cast<ACVInteractiveActor>(Hit.GetActor());
+		if(Interactive)
+		{
+			if (Interactive != CurrentInteractive) {
+
+				//setting up outline effect
+				Interactive->GetMesh()->SetRenderCustomDepth(true);
+				Interactive->GetMesh()->SetCustomDepthStencilValue(253);
+
+				//disable outline effect on old focused interactive object
+				if (CurrentInteractive) {
+					CurrentInteractive->GetMesh()->SetRenderCustomDepth(false);
+				}
+
+				CurrentInteractive = Interactive;
+				return;
+			}
+		}
+	}
+
+	else if (CurrentInteractive) {
+		
+		//unable outline effect if we are not looking at object anymore
+		CurrentInteractive->GetMesh()->SetRenderCustomDepth(false);
+
+		//if we didn't hit anything current interactive is null pointer
+		CurrentInteractive = nullptr;
+	}
+}
+
+void ACVCharacter::SetZoom()
+{
+	if (bWantsToZoom && EquippedWeapon->bCanZoom) {
+		ZoomedCameraComp->bIsActive = true;
+		ZoomedCameraComp->SetFieldOfView(ZoomedFOV);
+		CameraComp->bIsActive = false;
+	}
+	else
+	{
+		ZoomedCameraComp->bIsActive = false;
+		CameraComp->bIsActive = true;
+	}
+}
+
 
 void ACVCharacter::OnHealthChanged(UCVHealthComponent* OwningHealthComp, float Health, float HealthDelta,
 	const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
@@ -141,15 +199,41 @@ void ACVCharacter::OnHealthChanged(UCVHealthComponent* OwningHealthComp, float H
 
 		GetMovementComponent()->StopMovementImmediately();
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		EquippedWeapon->SetActorEnableCollision(ECollisionEnabled::NoCollision);
 		bDied = true;
 
 		UE_LOG(LogTemp, Log, TEXT("Actor is killed!"));
 
 		DetachFromControllerPendingDestroy();
 		SetLifeSpan(10.0f);
-		EquippedWeapon->SetLifeSpan(10.0f);
+
+		//only if some weapon is equipped set it's destroy time and no collision
+		if(EquippedWeapon)
+		{
+			EquippedWeapon->SetActorEnableCollision(ECollisionEnabled::NoCollision);
+			EquippedWeapon->SetLifeSpan(10.0f);
+		}
 	}
+}
+
+void ACVCharacter::UseEffect()
+{
+	if(CurrentEffectClass)
+	{
+		CurrentEffect =Cast<ACVBaseEffect> (GetWorld()->SpawnActor(CurrentEffectClass));
+		if (CurrentEffect) {
+			CurrentEffect->SetOwner(this);
+		}
+		UE_LOG(LogTemp, Log, TEXT("Effect class spawn!"));
+
+		CurrentEffect->Use();
+	}
+}
+
+void ACVCharacter::DestroyEffect()
+{
+	CurrentEffect->Destroy();
+
+	CurrentEffectClass = nullptr;
 }
 
 // Called every frame
@@ -157,16 +241,9 @@ void ACVCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 		
-	if (bWantsToZoom && EquippedWeapon->bCanZoom) {
-		ZoomedCameraComp->bIsActive = true;
-		ZoomedCameraComp->SetFieldOfView(ZoomedFOV);
-		CameraComp->bIsActive = false;
-	}
-	else
-	{
-		ZoomedCameraComp->bIsActive = false;
-		CameraComp->bIsActive = true;
-	}
+	SetZoom();
+
+	CheckForInteractables();
 	
 }
 
@@ -194,6 +271,24 @@ void ACVCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("SwitchUp", IE_Pressed, this, &ACVCharacter::NextWeapon);
 	PlayerInputComponent->BindAction("SwitchDown", IE_Released, this, &ACVCharacter::PreviousWeapon);
 
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACVCharacter::Interact);
+
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ACVCharacter::Reload);
+}
+
+void ACVCharacter::FindAndReload(TSubclassOf<ACVWeapon> WeaponType)
+{
+	WeaponsComp->FindAndReload(WeaponType);
+}
+
+void ACVCharacter::Reload()
+{
+	if (InventoryComp->Remove(EquippedWeapon->AmmoID)) {
+		EquippedWeapon->Reload();
+	}
+	else {
+		UE_LOG(LogTemp, Log, TEXT("You don't have any ammo left!"));
+	}
 }
 
 void ACVCharacter::StartFire()
@@ -205,6 +300,5 @@ void ACVCharacter::StopFire()
 {
 	EquippedWeapon->StopFire();
 }
-
 
 

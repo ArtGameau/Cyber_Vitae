@@ -9,6 +9,7 @@
 class UStaticMeshComponent;
 class URadialForceComponent;
 class USphereComponent;
+class UProjectileMovementComponent;
 
 UCLASS()
 class CYBER_VITAE_API ACVProjectile : public AActor
@@ -32,7 +33,7 @@ protected:
 		URadialForceComponent* RadialForceComp;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
-		USphereComponent* SphereComp;
+		UProjectileMovementComponent* MovementComp;
 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
