@@ -31,6 +31,8 @@ ACVWeapon::ACVWeapon()
 
 	bCanZoom = false;
 
+	Range = 1000;
+
 	MagazineSize = 50;
 
 	Name = FText::FromString("No name");
@@ -68,7 +70,7 @@ void ACVWeapon::Fire()
 		float HalfRad = FMath::DegreesToRadians(BulletSpread);
 		ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);
 
-		FVector TraceEnd = EyeLocation + (ShotDirection * 10000);
+		FVector TraceEnd = EyeLocation + (ShotDirection * Range);
 
 		//Impact effect 'target' parameter
 		FVector TracerEndPoint = TraceEnd;

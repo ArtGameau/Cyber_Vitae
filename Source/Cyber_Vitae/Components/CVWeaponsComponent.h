@@ -27,11 +27,12 @@ protected:
 
 	int32 CurrentWeaponPlace;
 
-	int32 CurrentStackSize;
+	//UPROPERTY(EditDefaultsOnly, Category = "Player")
+		int32 CurrentStackSize;
 
 	int32 MaxStackSize;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	//UPROPERTY(EditDefaultsOnly, Category = "Player")
 		TArray<TSubclassOf<ACVWeapon>> EquippedWeaponClasses;
 
 	TArray<ACVWeapon*> EquippedWeapons;
@@ -55,4 +56,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		TArray<ACVWeapon*> GetWeapons();
+	
+	//uset when choosing character class
+	void SetMaxStackSize(int32 NewMax);
 };

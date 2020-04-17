@@ -5,6 +5,7 @@
 #include "Cyber_Vitae.h"
 #include "Weapons/CVWeapon.h"
 #include "Interactive/CVInteractiveActor.h"
+#include "Interactive/CVWeaponPickUp.h"
 #include "Components/CVHealthComponent.h"
 #include "Components/CVInventoryComponent.h"
 #include "Components/CVWeaponsComponent.h"
@@ -62,11 +63,10 @@ void ACVCharacter::BeginPlay()
 
 	DefaultFOV = ZoomedCameraComp->FieldOfView;
 
-	/*
-	SpawnWeapons();
-	*/
 	EquippedWeapon = WeaponsComp->FirstWeapon();
-	EquippedWeapon->ActivateWeapon();
+	if (EquippedWeapon) {
+		EquippedWeapon->ActivateWeapon();
+	}
 
 	bDied = false;
 	bWantsToZoom = false;
@@ -124,6 +124,14 @@ void ACVCharacter::Interact()
 	//prevents same pickup actor to be picked up twice when fast button press
 	if (CurrentInteractive && !CurrentInteractive->bIsInUse) {
 		CurrentInteractive->Interact(this);
+
+		//if we are taking weapon for the first time equipp it 
+		if (!EquippedWeapon && Cast<ACVWeaponPickUp>(CurrentInteractive)) {
+			EquippedWeapon = WeaponsComp->FirstWeapon();
+			if (EquippedWeapon) {
+				EquippedWeapon->ActivateWeapon();
+			}
+		}
 	}
 }
 
@@ -293,12 +301,16 @@ void ACVCharacter::Reload()
 
 void ACVCharacter::StartFire()
 {
-	EquippedWeapon->StartFire();
+	if (EquippedWeapon) {
+		EquippedWeapon->StartFire();
+	}
 }
 
 void ACVCharacter::StopFire()
 {
-	EquippedWeapon->StopFire();
+	if (EquippedWeapon) {
+		EquippedWeapon->StopFire();
+	}
 }
 
 

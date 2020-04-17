@@ -61,6 +61,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 		TSubclassOf<UDamageType> DamageType;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+		int32 Range;
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 		FName MuzzleSocketName;
 
