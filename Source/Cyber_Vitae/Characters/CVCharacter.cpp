@@ -182,7 +182,7 @@ void ACVCharacter::CheckForInteractables()
 
 void ACVCharacter::SetZoom()
 {
-	if (bWantsToZoom && EquippedWeapon->bCanZoom) {
+	if (bWantsToZoom && EquippedWeapon && EquippedWeapon->bCanZoom) {
 		ZoomedCameraComp->bIsActive = true;
 		ZoomedCameraComp->SetFieldOfView(ZoomedFOV);
 		CameraComp->bIsActive = false;
