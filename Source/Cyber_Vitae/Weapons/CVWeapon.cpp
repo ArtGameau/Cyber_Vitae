@@ -31,6 +31,8 @@ ACVWeapon::ACVWeapon()
 
 	bCanZoom = false;
 
+	BonusDamage = 0;
+
 	Range = 1000;
 
 	MagazineSize = 50;
@@ -90,7 +92,7 @@ void ACVWeapon::Fire()
 			AActor* HitActor = Hit.GetActor();
 
 			SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
-			float ActualDamage = BaseDamage;
+			float ActualDamage = BaseDamage+BonusDamage;
 
 			if (SurfaceType == SURFACE_FLESHVULNERABLE)
 			{
@@ -162,6 +164,11 @@ void ACVWeapon::PlayImpactEffect(EPhysicalSurface SurfaceType, FVector ImpactPoi
 
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ShotDirection.Rotation());
 	}
+}
+
+void ACVWeapon::SetBonusDamage(float NewBonus)
+{
+	BonusDamage = NewBonus;
 }
 
 void ACVWeapon::StartFire()

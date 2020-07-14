@@ -52,6 +52,8 @@ ACVCharacter::ACVCharacter()
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
+	CharacterClass = ECharClassEnum::CE_None;
+
 	ZoomedFOV = 60.0f;
 	ZoomInterpSpeed = 20;
 }
@@ -242,6 +244,31 @@ void ACVCharacter::DestroyEffect()
 	CurrentEffect->Destroy();
 
 	CurrentEffectClass = nullptr;
+}
+
+bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
+{
+	if (CharacterClass == ECharClassEnum::CE_None) {
+		CharacterClass = Class;
+
+		switch (Class) {
+		case ECharClassEnum::CE_Tank:
+			WeaponsComp->SetTank(6, 10);
+			HealthComp->IncreaseHealth(100);
+			break;
+		case ECharClassEnum::CE_Hacker:
+			break;
+		case ECharClassEnum::CE_Jumper:
+			break;
+		default:
+			break;
+
+		}
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 // Called every frame

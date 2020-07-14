@@ -58,6 +58,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float BaseDamage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+		float BonusDamage;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 		TSubclassOf<UDamageType> DamageType;
 
@@ -101,6 +104,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		FName AmmoID;
+
+	void SetBonusDamage(float NewBonus);
 
 	void StartFire();
 	void StopFire();

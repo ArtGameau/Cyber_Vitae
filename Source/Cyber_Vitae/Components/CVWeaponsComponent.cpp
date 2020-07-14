@@ -48,9 +48,12 @@ void UCVWeaponsComponent::SpawnWeapons()
 
 				UE_LOG(LogTemp, Log, TEXT("Weapon spawned!"));
 
-				if (MyOwner && ChOwner){
+				if (MyOwner && ChOwner) {
 					EquippedWeapons[i]->SetOwner(MyOwner);
 					EquippedWeapons[i]->AttachToComponent(Cast<USceneComponent>(ChOwner->GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+					if (bIsTank){
+						EquippedWeapons[i]->SetBonusDamage(TankBonus);
+					}
 				}
 			}
 		}
@@ -72,6 +75,9 @@ void UCVWeaponsComponent::SpawnNewWeapon()
 		if (MyOwner && ChOwner) {
 			EquippedWeapons[CurrentStackSize]->SetOwner(MyOwner);
 			EquippedWeapons[CurrentStackSize]->AttachToComponent(Cast<USceneComponent>(ChOwner->GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+			if (bIsTank) {
+				EquippedWeapons[CurrentStackSize]->SetBonusDamage(TankBonus);
+			}
 		}
 	}
 }
@@ -161,7 +167,7 @@ bool UCVWeaponsComponent::AddWeapon(TSubclassOf<ACVWeapon> WeaponClass)
 	}
 }
 
-void UCVWeaponsComponent::Remove(int32 index)
+TSubclassOf<ACVWeapon> UCVWeaponsComponent::Remove(int32 index)
 {
 	int32 i;
 
@@ -170,6 +176,7 @@ void UCVWeaponsComponent::Remove(int32 index)
 
 		//destroying weapon
 		EquippedWeapons[index]->Destroy();
+		TSubclassOf<ACVWeapon> RemovedWeaponClass = EquippedWeaponClasses[index];
 
 		//moving all next weapons backwards so array can stay continually filled
 		for (i = index + 1; i < CurrentStackSize; i++) {
@@ -187,9 +194,11 @@ void UCVWeaponsComponent::Remove(int32 index)
 		if (index < CurrentWeaponPlace) {
 			CurrentWeaponPlace--;
 		}
+		return RemovedWeaponClass;
 	}
 	else {
 		UE_LOG(LogTemp, Log, TEXT("You can't remove weapon you are holding!"));
+		return nullptr;
 	}
 	
 }
@@ -202,6 +211,23 @@ TArray<ACVWeapon*> UCVWeaponsComponent::GetWeapons()
 void UCVWeaponsComponent::SetMaxStackSize(int32 NewMax)
 {
 	MaxStackSize = NewMax;
+
+	EquippedWeaponClasses.SetNum(MaxStackSize);
+	EquippedWeapons.SetNum(MaxStackSize);
+}
+
+void UCVWeaponsComponent::SetTank(int32 NewMaxStack, int32 DamageBonus)
+{
+	bIsTank = true;
+	SetMaxStackSize(NewMaxStack);
+
+	TankBonus = DamageBonus;
+	for (int i = 0; i < CurrentStackSize; i++) {
+		if (EquippedWeapons[i]) {
+			EquippedWeapons[i]->SetBonusDamage(TankBonus);
+		}
+	}
+
 }
 
 

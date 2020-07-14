@@ -40,6 +40,10 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 		FName WeaponAttachSocketName;
 
+	bool bIsTank;
+
+	int32 TankBonus;
+
 public:
 
 	ACVWeapon* NextWeapon();
@@ -52,11 +56,15 @@ public:
 	bool AddWeapon(TSubclassOf<ACVWeapon> WeaponClass);
 
 	UFUNCTION(BlueprintCallable)
-		void Remove(int32 index);
+		TSubclassOf<ACVWeapon> Remove(int32 index);
 
 	UFUNCTION(BlueprintCallable)
 		TArray<ACVWeapon*> GetWeapons();
 	
-	//uset when choosing character class
+	//used when choosing character class
 	void SetMaxStackSize(int32 NewMax);
+
+	//setting up tank class
+	void SetTank(int32 NewMaxStack, int32 DamageBonus);
+
 };

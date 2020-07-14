@@ -29,6 +29,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UStaticMeshComponent* MeshComp;
 
+	//UPROPERTY(VisibleAnywhere, Category = "Components")
+	//	USphereComponent* SphereComp;
+
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 		URadialForceComponent* RadialForceComp;
 
@@ -66,6 +69,6 @@ public:
 	void Tick(float DeltaTime) override;
 	
 	UFUNCTION()
-		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 };
