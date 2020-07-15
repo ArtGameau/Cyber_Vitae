@@ -9,6 +9,8 @@ ACVInteractiveActor::ACVInteractiveActor()
 {
 	MeshComp=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	RootComponent = MeshComp;
+
+	bIsHackable = false;
 	
 	Name = "Name not set";
 	Action = "Interact";

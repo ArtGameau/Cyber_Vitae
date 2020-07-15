@@ -11,6 +11,8 @@ ACVWeaponPickUp::ACVWeaponPickUp() {
 
 void ACVWeaponPickUp::Interact(ACVCharacter * Character)
 {
+	bIsInUse = true;
+
 	UCVWeaponsComponent* WeaponsInventory = Cast<UCVWeaponsComponent>(Character->GetComponentByClass(UCVWeaponsComponent::StaticClass()));
 
 	if ( WeaponsInventory && WeaponsInventory->AddWeapon(WeaponClass)) {

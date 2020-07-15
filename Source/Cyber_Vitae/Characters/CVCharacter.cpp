@@ -122,6 +122,11 @@ void ACVCharacter::PreviousWeapon()
 
 void ACVCharacter::Interact()
 {
+	//if item is hackable but player character class isn't hacker, he can't interact with object
+	if (CurrentInteractive && !CheckInteractConditions(CurrentInteractive)) {
+		UE_LOG(LogTemp, Log, TEXT("Can't hack/pick up this item without hacking equipment!"));
+		return;
+	}
 	//interact only if we are focused on interactive actor and that actor is not already in use
 	//prevents same pickup actor to be picked up twice when fast button press
 	if (CurrentInteractive && !CurrentInteractive->bIsInUse) {
@@ -158,8 +163,14 @@ void ACVCharacter::CheckForInteractables()
 			if (Interactive != CurrentInteractive) {
 
 				//setting up outline effect
+				//if object needs to be hacked and player isn't hacker outline should be red
 				Interactive->GetMesh()->SetRenderCustomDepth(true);
-				Interactive->GetMesh()->SetCustomDepthStencilValue(253);
+				if (!CheckInteractConditions(Interactive)) {
+					Interactive->GetMesh()->SetCustomDepthStencilValue(254);
+				}
+				else {
+					Interactive->GetMesh()->SetCustomDepthStencilValue(253);
+				}
 
 				//disable outline effect on old focused interactive object
 				if (CurrentInteractive) {
@@ -237,6 +248,14 @@ void ACVCharacter::UseEffect()
 
 		CurrentEffect->Use();
 	}
+}
+
+bool ACVCharacter::CheckInteractConditions(ACVInteractiveActor * Interactive)
+{
+	if (Interactive->bIsHackable && CharacterClass != ECharClassEnum::CE_Hacker)
+		return false;
+	else
+		return true;
 }
 
 void ACVCharacter::DestroyEffect()

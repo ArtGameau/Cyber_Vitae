@@ -44,5 +44,8 @@ public:
 
 	bool bIsInUse;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Interactive")
+	bool bIsHackable;
+
 	virtual UStaticMeshComponent* GetMesh();
 };

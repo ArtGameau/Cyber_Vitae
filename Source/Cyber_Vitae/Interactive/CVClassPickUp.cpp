@@ -9,6 +9,8 @@ ACVClassPickUp::ACVClassPickUp() {
 
 void ACVClassPickUp::Interact(ACVCharacter * Character)
 {
+	bIsInUse = true;
+
 	if (Character->SetupCharacterClass(CharacterClass)) {
 		Destroy();
 	}

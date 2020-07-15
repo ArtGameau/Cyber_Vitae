@@ -187,6 +187,9 @@ public:
 	//Called to fill weapon magazine
 	void FindAndReload(TSubclassOf<ACVWeapon> WeaponType);
 
+	UFUNCTION(BlueprintCallable)
+		bool CheckInteractConditions(ACVInteractiveActor* Interactive);
+
 	void DestroyEffect();
 
 	bool SetupCharacterClass(ECharClassEnum Class);
