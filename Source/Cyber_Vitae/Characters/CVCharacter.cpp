@@ -258,6 +258,11 @@ bool ACVCharacter::CheckInteractConditions(ACVInteractiveActor * Interactive)
 		return true;
 }
 
+bool ACVCharacter::HasJetpack()
+{
+	return CharacterClass==ECharClassEnum::CE_Jumper;
+}
+
 void ACVCharacter::DestroyEffect()
 {
 	CurrentEffect->Destroy();
@@ -272,7 +277,7 @@ bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
 
 		switch (Class) {
 		case ECharClassEnum::CE_Tank:
-			WeaponsComp->SetTank(6, 10);
+			WeaponsComp->SetTank(3, 10);
 			HealthComp->IncreaseHealth(100);
 			break;
 		case ECharClassEnum::CE_Hacker:
@@ -314,7 +319,7 @@ void ACVCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ACVCharacter::BeginCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ACVCharacter::EndCrouch);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACVCharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACVCharacter::PlayerJump);
 	
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACVCharacter::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACVCharacter::StopFire);
@@ -323,7 +328,7 @@ void ACVCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ACVCharacter::EndZoom);
 
 	PlayerInputComponent->BindAction("SwitchUp", IE_Pressed, this, &ACVCharacter::NextWeapon);
-	PlayerInputComponent->BindAction("SwitchDown", IE_Released, this, &ACVCharacter::PreviousWeapon);
+	PlayerInputComponent->BindAction("SwitchDown", IE_Pressed, this, &ACVCharacter::PreviousWeapon);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACVCharacter::Interact);
 
@@ -357,6 +362,15 @@ void ACVCharacter::StopFire()
 	if (EquippedWeapon) {
 		EquippedWeapon->StopFire();
 	}
+}
+
+void ACVCharacter::PlayerJump()
+{
+	Jump();
+	if (HasJetpack()) {
+		JetpackHover();
+	}
+	
 }
 
 

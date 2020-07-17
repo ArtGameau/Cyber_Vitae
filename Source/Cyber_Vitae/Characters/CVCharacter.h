@@ -112,6 +112,8 @@ protected:
 	void StartFire();
 	void StopFire();
 
+	void PlayerJump();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UCVHealthComponent* HealthComp;
 	
@@ -189,6 +191,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		bool CheckInteractConditions(ACVInteractiveActor* Interactive);
+
+	UFUNCTION(BlueprintCallable)
+		bool HasJetpack();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void JetpackHover();
 
 	void DestroyEffect();
 
