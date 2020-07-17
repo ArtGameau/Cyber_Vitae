@@ -58,8 +58,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float BaseDamage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+		float BonusDamage;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 		TSubclassOf<UDamageType> DamageType;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+		int32 Range;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 		FName MuzzleSocketName;
@@ -98,6 +104,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		FName AmmoID;
+
+	void SetBonusDamage(float NewBonus);
 
 	void StartFire();
 	void StopFire();

@@ -27,17 +27,22 @@ protected:
 
 	int32 CurrentWeaponPlace;
 
-	int32 CurrentStackSize;
+	//UPROPERTY(EditDefaultsOnly, Category = "Player")
+		int32 CurrentStackSize;
 
 	int32 MaxStackSize;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	//UPROPERTY(EditDefaultsOnly, Category = "Player")
 		TArray<TSubclassOf<ACVWeapon>> EquippedWeaponClasses;
 
 	TArray<ACVWeapon*> EquippedWeapons;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 		FName WeaponAttachSocketName;
+
+	bool bIsTank;
+
+	int32 TankBonus;
 
 public:
 
@@ -51,8 +56,15 @@ public:
 	bool AddWeapon(TSubclassOf<ACVWeapon> WeaponClass);
 
 	UFUNCTION(BlueprintCallable)
-		void Remove(int32 index);
+		TSubclassOf<ACVWeapon> Remove(int32 index);
 
 	UFUNCTION(BlueprintCallable)
 		TArray<ACVWeapon*> GetWeapons();
+	
+	//used when choosing character class
+	void SetMaxStackSize(int32 NewMax);
+
+	//setting up tank class
+	void SetTank(int32 NewMaxStack, int32 DamageBonus);
+
 };

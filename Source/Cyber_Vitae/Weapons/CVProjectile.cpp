@@ -28,6 +28,15 @@ ACVProjectile::ACVProjectile()
 	MeshComp->SetCollisionResponseToAllChannels(ECR_Block);
 	RootComponent = MeshComp;
 
+
+	//SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	//SphereComp->SetSphereRadius(50);
+	//SphereComp->SetSimulatePhysics(true);
+	//SphereComp->SetCollisionObjectType(ECC_PhysicsBody);
+	//SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//SphereComp->SetCollisionResponseToAllChannels(ECR_Block);
+	//RootComponent = MeshComp;
+
 	RadialForceComp = CreateDefaultSubobject<URadialForceComponent>(TEXT("RadialForceComp"));
 	RadialForceComp->SetupAttachment(MeshComp);
 	RadialForceComp->Radius = 250;
@@ -89,7 +98,7 @@ void ACVProjectile::Explode()
 	Destroy();
 }
 
-void ACVProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ACVProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Trying to overlap!"));
 

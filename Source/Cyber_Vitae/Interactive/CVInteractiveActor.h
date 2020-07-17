@@ -44,5 +44,8 @@ public:
 
 	bool bIsInUse;
 
+	UPROPERTY(EditDefaultsOnly, Category="Interactive")
+	bool bIsHackable;
+
 	virtual UStaticMeshComponent* GetMesh();
 };

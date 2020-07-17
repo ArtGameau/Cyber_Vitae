@@ -31,6 +31,10 @@ ACVWeapon::ACVWeapon()
 
 	bCanZoom = false;
 
+	BonusDamage = 0;
+
+	Range = 1000;
+
 	MagazineSize = 50;
 
 	Name = FText::FromString("No name");
@@ -68,7 +72,7 @@ void ACVWeapon::Fire()
 		float HalfRad = FMath::DegreesToRadians(BulletSpread);
 		ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);
 
-		FVector TraceEnd = EyeLocation + (ShotDirection * 10000);
+		FVector TraceEnd = EyeLocation + (ShotDirection * Range);
 
 		//Impact effect 'target' parameter
 		FVector TracerEndPoint = TraceEnd;
@@ -88,7 +92,7 @@ void ACVWeapon::Fire()
 			AActor* HitActor = Hit.GetActor();
 
 			SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
-			float ActualDamage = BaseDamage;
+			float ActualDamage = BaseDamage+BonusDamage;
 
 			if (SurfaceType == SURFACE_FLESHVULNERABLE)
 			{
@@ -160,6 +164,11 @@ void ACVWeapon::PlayImpactEffect(EPhysicalSurface SurfaceType, FVector ImpactPoi
 
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ShotDirection.Rotation());
 	}
+}
+
+void ACVWeapon::SetBonusDamage(float NewBonus)
+{
+	BonusDamage = NewBonus;
 }
 
 void ACVWeapon::StartFire()

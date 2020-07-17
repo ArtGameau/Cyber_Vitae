@@ -16,7 +16,7 @@ UCVWeaponsComponent::UCVWeaponsComponent()
 	WeaponAttachSocketName = "WeaponSocket";
 
 	CurrentWeaponPlace = 0;
-	CurrentStackSize = 1;
+	CurrentStackSize = 0;
 	MaxStackSize = 4;
 
 	EquippedWeaponClasses.SetNum(MaxStackSize);
@@ -48,9 +48,12 @@ void UCVWeaponsComponent::SpawnWeapons()
 
 				UE_LOG(LogTemp, Log, TEXT("Weapon spawned!"));
 
-				if (MyOwner && ChOwner){
+				if (MyOwner && ChOwner) {
 					EquippedWeapons[i]->SetOwner(MyOwner);
 					EquippedWeapons[i]->AttachToComponent(Cast<USceneComponent>(ChOwner->GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+					if (bIsTank){
+						EquippedWeapons[i]->SetBonusDamage(TankBonus);
+					}
 				}
 			}
 		}
@@ -72,37 +75,68 @@ void UCVWeaponsComponent::SpawnNewWeapon()
 		if (MyOwner && ChOwner) {
 			EquippedWeapons[CurrentStackSize]->SetOwner(MyOwner);
 			EquippedWeapons[CurrentStackSize]->AttachToComponent(Cast<USceneComponent>(ChOwner->GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+			if (bIsTank) {
+				EquippedWeapons[CurrentStackSize]->SetBonusDamage(TankBonus);
+			}
 		}
 	}
 }
 
 ACVWeapon* UCVWeaponsComponent::NextWeapon()
 {
-	//deactivate current weapon
-	EquippedWeapons[CurrentWeaponPlace]->DeactivateWeapon();
-	//moving to next weapon and activating
-	CurrentWeaponPlace = (CurrentWeaponPlace + 1) % CurrentStackSize;
-	EquippedWeapons[CurrentWeaponPlace]->ActivateWeapon();
+	//if there are more than one weapons equipped swap them
+	if (CurrentStackSize>1) {
+		//deactivate current weapon
+		EquippedWeapons[CurrentWeaponPlace]->DeactivateWeapon();
+		//moving to next weapon and activating
+		CurrentWeaponPlace = (CurrentWeaponPlace + 1) % CurrentStackSize;
+		EquippedWeapons[CurrentWeaponPlace]->ActivateWeapon();
 
-	//return next weapon
-	return EquippedWeapons[CurrentWeaponPlace];
+		//return next weapon
+		return EquippedWeapons[CurrentWeaponPlace];
+	}
+	//if there is only one weapon keep it equipped
+	else if (CurrentStackSize == 1) {
+		return EquippedWeapons[CurrentWeaponPlace];
+	}
+	//if there are no weapons return null pointer
+	else {
+		return nullptr;
+	}
 }
 
 ACVWeapon* UCVWeaponsComponent::PreviousWeapon()
 {
-	//deactivate current weapon
-	EquippedWeapons[CurrentWeaponPlace]->DeactivateWeapon();
-	//moving to next weapon and activating
-	CurrentWeaponPlace = (CurrentWeaponPlace - 1 + CurrentStackSize) % CurrentStackSize;
-	EquippedWeapons[CurrentWeaponPlace]->ActivateWeapon();
+	//if there are more than one weapons equipped swap them
+	if (CurrentStackSize > 1) {
+		//deactivate current weapon
+		EquippedWeapons[CurrentWeaponPlace]->DeactivateWeapon();
+		//moving to next weapon and activating
+		CurrentWeaponPlace = (CurrentWeaponPlace - 1 + CurrentStackSize) % CurrentStackSize;
+		EquippedWeapons[CurrentWeaponPlace]->ActivateWeapon();
 
-	//return next weapon
-	return EquippedWeapons[CurrentWeaponPlace];
+		//return next weapon
+		return EquippedWeapons[CurrentWeaponPlace];
+	}
+	//if there is only one weapon keep it equipped
+	else if (CurrentStackSize == 1) {
+		return EquippedWeapons[CurrentWeaponPlace];
+
+	}
+	//if there are no weapons return null pointer
+	else {
+		return nullptr;
+	}
 }
 
 ACVWeapon* UCVWeaponsComponent::FirstWeapon()
 {	
-	return EquippedWeapons[CurrentWeaponPlace];
+	if (CurrentStackSize) {
+		return EquippedWeapons[CurrentWeaponPlace];
+	}
+	else {
+		return nullptr;
+	}
 }
 
 void UCVWeaponsComponent::FindAndReload(TSubclassOf<ACVWeapon> WeaponType)
@@ -113,7 +147,7 @@ void UCVWeaponsComponent::FindAndReload(TSubclassOf<ACVWeapon> WeaponType)
 		EquippedWeapons[index]->Reload();
 	}
 	else {
-		UE_LOG(LogTemp, Log, TEXT("Wrong Weapon Type!"));
+		UE_LOG(LogTemp, Log, TEXT("You don't have that Weapon Type!"));
 	}
 }
 
@@ -133,7 +167,7 @@ bool UCVWeaponsComponent::AddWeapon(TSubclassOf<ACVWeapon> WeaponClass)
 	}
 }
 
-void UCVWeaponsComponent::Remove(int32 index)
+TSubclassOf<ACVWeapon> UCVWeaponsComponent::Remove(int32 index)
 {
 	int32 i;
 
@@ -142,6 +176,7 @@ void UCVWeaponsComponent::Remove(int32 index)
 
 		//destroying weapon
 		EquippedWeapons[index]->Destroy();
+		TSubclassOf<ACVWeapon> RemovedWeaponClass = EquippedWeaponClasses[index];
 
 		//moving all next weapons backwards so array can stay continually filled
 		for (i = index + 1; i < CurrentStackSize; i++) {
@@ -159,9 +194,11 @@ void UCVWeaponsComponent::Remove(int32 index)
 		if (index < CurrentWeaponPlace) {
 			CurrentWeaponPlace--;
 		}
+		return RemovedWeaponClass;
 	}
 	else {
 		UE_LOG(LogTemp, Log, TEXT("You can't remove weapon you are holding!"));
+		return nullptr;
 	}
 	
 }
@@ -169,6 +206,28 @@ void UCVWeaponsComponent::Remove(int32 index)
 TArray<ACVWeapon*> UCVWeaponsComponent::GetWeapons()
 {
 	return EquippedWeapons;
+}
+
+void UCVWeaponsComponent::SetMaxStackSize(int32 NewMax)
+{
+	MaxStackSize = NewMax;
+
+	EquippedWeaponClasses.SetNum(MaxStackSize);
+	EquippedWeapons.SetNum(MaxStackSize);
+}
+
+void UCVWeaponsComponent::SetTank(int32 NewMaxStack, int32 DamageBonus)
+{
+	bIsTank = true;
+	SetMaxStackSize(NewMaxStack);
+
+	TankBonus = DamageBonus;
+	for (int i = 0; i < CurrentStackSize; i++) {
+		if (EquippedWeapons[i]) {
+			EquippedWeapons[i]->SetBonusDamage(TankBonus);
+		}
+	}
+
 }
 
 

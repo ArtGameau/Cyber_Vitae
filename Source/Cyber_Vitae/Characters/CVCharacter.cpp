@@ -5,6 +5,7 @@
 #include "Cyber_Vitae.h"
 #include "Weapons/CVWeapon.h"
 #include "Interactive/CVInteractiveActor.h"
+#include "Interactive/CVWeaponPickUp.h"
 #include "Components/CVHealthComponent.h"
 #include "Components/CVInventoryComponent.h"
 #include "Components/CVWeaponsComponent.h"
@@ -51,6 +52,8 @@ ACVCharacter::ACVCharacter()
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
+	CharacterClass = ECharClassEnum::CE_None;
+
 	ZoomedFOV = 60.0f;
 	ZoomInterpSpeed = 20;
 }
@@ -62,11 +65,10 @@ void ACVCharacter::BeginPlay()
 
 	DefaultFOV = ZoomedCameraComp->FieldOfView;
 
-	/*
-	SpawnWeapons();
-	*/
 	EquippedWeapon = WeaponsComp->FirstWeapon();
-	EquippedWeapon->ActivateWeapon();
+	if (EquippedWeapon) {
+		EquippedWeapon->ActivateWeapon();
+	}
 
 	bDied = false;
 	bWantsToZoom = false;
@@ -120,10 +122,23 @@ void ACVCharacter::PreviousWeapon()
 
 void ACVCharacter::Interact()
 {
+	//if item is hackable but player character class isn't hacker, he can't interact with object
+	if (CurrentInteractive && !CheckInteractConditions(CurrentInteractive)) {
+		UE_LOG(LogTemp, Log, TEXT("Can't hack/pick up this item without hacking equipment!"));
+		return;
+	}
 	//interact only if we are focused on interactive actor and that actor is not already in use
 	//prevents same pickup actor to be picked up twice when fast button press
 	if (CurrentInteractive && !CurrentInteractive->bIsInUse) {
 		CurrentInteractive->Interact(this);
+
+		//if we are taking weapon for the first time equipp it 
+		if (!EquippedWeapon && Cast<ACVWeaponPickUp>(CurrentInteractive)) {
+			EquippedWeapon = WeaponsComp->FirstWeapon();
+			if (EquippedWeapon) {
+				EquippedWeapon->ActivateWeapon();
+			}
+		}
 	}
 }
 
@@ -148,8 +163,14 @@ void ACVCharacter::CheckForInteractables()
 			if (Interactive != CurrentInteractive) {
 
 				//setting up outline effect
+				//if object needs to be hacked and player isn't hacker outline should be red
 				Interactive->GetMesh()->SetRenderCustomDepth(true);
-				Interactive->GetMesh()->SetCustomDepthStencilValue(253);
+				if (!CheckInteractConditions(Interactive)) {
+					Interactive->GetMesh()->SetCustomDepthStencilValue(254);
+				}
+				else {
+					Interactive->GetMesh()->SetCustomDepthStencilValue(253);
+				}
 
 				//disable outline effect on old focused interactive object
 				if (CurrentInteractive) {
@@ -174,7 +195,7 @@ void ACVCharacter::CheckForInteractables()
 
 void ACVCharacter::SetZoom()
 {
-	if (bWantsToZoom && EquippedWeapon->bCanZoom) {
+	if (bWantsToZoom && EquippedWeapon && EquippedWeapon->bCanZoom) {
 		ZoomedCameraComp->bIsActive = true;
 		ZoomedCameraComp->SetFieldOfView(ZoomedFOV);
 		CameraComp->bIsActive = false;
@@ -229,11 +250,49 @@ void ACVCharacter::UseEffect()
 	}
 }
 
+bool ACVCharacter::CheckInteractConditions(ACVInteractiveActor * Interactive)
+{
+	if (Interactive->bIsHackable && CharacterClass != ECharClassEnum::CE_Hacker)
+		return false;
+	else
+		return true;
+}
+
+bool ACVCharacter::HasJetpack()
+{
+	return CharacterClass==ECharClassEnum::CE_Jumper;
+}
+
 void ACVCharacter::DestroyEffect()
 {
 	CurrentEffect->Destroy();
 
 	CurrentEffectClass = nullptr;
+}
+
+bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
+{
+	if (CharacterClass == ECharClassEnum::CE_None) {
+		CharacterClass = Class;
+
+		switch (Class) {
+		case ECharClassEnum::CE_Tank:
+			WeaponsComp->SetTank(3, 10);
+			HealthComp->IncreaseHealth(100);
+			break;
+		case ECharClassEnum::CE_Hacker:
+			break;
+		case ECharClassEnum::CE_Jumper:
+			break;
+		default:
+			break;
+
+		}
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 // Called every frame
@@ -260,7 +319,7 @@ void ACVCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ACVCharacter::BeginCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ACVCharacter::EndCrouch);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACVCharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACVCharacter::PlayerJump);
 	
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACVCharacter::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACVCharacter::StopFire);
@@ -269,7 +328,7 @@ void ACVCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ACVCharacter::EndZoom);
 
 	PlayerInputComponent->BindAction("SwitchUp", IE_Pressed, this, &ACVCharacter::NextWeapon);
-	PlayerInputComponent->BindAction("SwitchDown", IE_Released, this, &ACVCharacter::PreviousWeapon);
+	PlayerInputComponent->BindAction("SwitchDown", IE_Pressed, this, &ACVCharacter::PreviousWeapon);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACVCharacter::Interact);
 
@@ -293,12 +352,25 @@ void ACVCharacter::Reload()
 
 void ACVCharacter::StartFire()
 {
-	EquippedWeapon->StartFire();
+	if (EquippedWeapon) {
+		EquippedWeapon->StartFire();
+	}
 }
 
 void ACVCharacter::StopFire()
 {
-	EquippedWeapon->StopFire();
+	if (EquippedWeapon) {
+		EquippedWeapon->StopFire();
+	}
+}
+
+void ACVCharacter::PlayerJump()
+{
+	Jump();
+	if (HasJetpack()) {
+		JetpackHover();
+	}
+	
 }
 
 

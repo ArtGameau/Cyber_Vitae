@@ -77,6 +77,17 @@ float UCVHealthComponent::GetHealth() const
 	return Health;
 }
 
+void UCVHealthComponent::SetHealth(float NewHealth)
+{
+	Health = NewHealth;
+}
+
+void UCVHealthComponent::IncreaseHealth(float NewHealth)
+{
+	DefaultHealth += NewHealth;
+	Health += NewHealth;
+}
+
 bool UCVHealthComponent::IsFriendly(AActor* ActorA, AActor* ActorB)
 {
 	if(ActorA==nullptr || ActorB==nullptr)

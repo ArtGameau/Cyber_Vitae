@@ -16,16 +16,16 @@ class UCVInventoryComponent;
 class UCVWeaponsComponent;
 class ACVBaseEffect;
 
-/*
-UENUM(BlueprintType)
-enum class EWeaponTypeEnum :uint8 {
 
-	WE_Riffle			UMETA(DisplayName="Riffle"),
-	WE_Sniper			UMETA(DisplayName="Sniper"),
-	WE_GrenadeLauncher	UMETA(DisplayName="GrenadeLauncher"),
-	WE_Pistol			UMETA(DisplayName="Pistol")
+UENUM(BlueprintType)
+enum class ECharClassEnum :uint8 {
+
+	CE_None				UMETA(DisplayName="None"),
+	CE_Tank				UMETA(DisplayName="Tank"),
+	CE_Hacker			UMETA(DisplayName="Hacker"),
+	CE_Jumper			UMETA(DisplayName="Jumper")
 };
-*/
+
 
 
 //STRUCT INVENTORY ITEM
@@ -112,6 +112,8 @@ protected:
 	void StartFire();
 	void StopFire();
 
+	void PlayerJump();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UCVHealthComponent* HealthComp;
 	
@@ -135,6 +137,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UCVWeaponsComponent* WeaponsComp;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		ECharClassEnum CharacterClass;
+
 
 	UFUNCTION()
 		void OnHealthChanged(UCVHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType,
@@ -183,6 +189,17 @@ public:
 	//Called to fill weapon magazine
 	void FindAndReload(TSubclassOf<ACVWeapon> WeaponType);
 
+	UFUNCTION(BlueprintCallable)
+		bool CheckInteractConditions(ACVInteractiveActor* Interactive);
+
+	UFUNCTION(BlueprintCallable)
+		bool HasJetpack();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void JetpackHover();
+
 	void DestroyEffect();
+
+	bool SetupCharacterClass(ECharClassEnum Class);
 
 };
