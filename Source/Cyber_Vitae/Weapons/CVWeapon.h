@@ -4,11 +4,85 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/DataTable.h"
 #include "CVWeapon.generated.h"
 
 class USkeletalMeshComponent;
 class UCameraShake;
 class UDamageType;
+
+//WEAPON INFO ITEM
+
+USTRUCT(BlueprintType)
+struct FWeaponItem : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+
+	FWeaponItem()
+	{
+		Name = FText::FromString("No name");
+		Damage = FText::FromString("No damage");
+		MaxDamageBonus = FText::FromString("No bonus");
+		Ammo= FText::FromString("No ammo");
+		BulletSpread = FText::FromString("No bullet spread");
+		RateOfFire = FText::FromString("No rate of fire");
+		Range = FText::FromString("No range");
+		Description = FText::FromString("Please enter description for this item.");
+
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FName WeaponID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<class ACVWeapon> WeaponClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<class ACVWeaponPickUp> PickUpClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FText Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FText Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FText MaxDamageBonus;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FText Ammo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FText RateOfFire;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FText BulletSpread;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FText Range;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UTexture2D* Thumbnail;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FText Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bIsHackable;
+
+	bool operator==(const FWeaponItem Item) const
+	{
+		if (WeaponID == Item.WeaponID)
+		{
+			return true;
+		}
+
+		return false;
+	}
+};
+
 
 UCLASS()
 class CYBER_VITAE_API ACVWeapon : public AActor
@@ -26,6 +100,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Components")
 	USkeletalMeshComponent* MeshComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FName WeaponID;
 
 	virtual void Fire();
 	

@@ -19,8 +19,20 @@ public:
 	ACVWeaponPickUp();
 
 protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FName WeaponID;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<ACVWeapon> WeaponClass;
+
+	FString DamageInfo;
+
+	FString RangeInfo;
+
+
+	UFUNCTION(BlueprintCallable, Category = "Interactive")
+		FString GetInfoText();
 
 
 public:

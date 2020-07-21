@@ -342,7 +342,7 @@ void ACVCharacter::FindAndReload(TSubclassOf<ACVWeapon> WeaponType)
 
 void ACVCharacter::Reload()
 {
-	if (InventoryComp->Remove(EquippedWeapon->AmmoID)) {
+	if (EquippedWeapon && InventoryComp->Remove(EquippedWeapon->AmmoID)) {
 		EquippedWeapon->Reload();
 	}
 	else {

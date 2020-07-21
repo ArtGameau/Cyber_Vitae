@@ -2,11 +2,31 @@
 
 
 #include "CVWeaponPickUp.h"
+#include "CVGameMode.h"
+#include "Engine/World.h"
+#include "../Weapons/CVWeapon.h"
 #include "../Components/CVWeaponsComponent.h"
 #include "../Characters/CVCharacter.h"
 
 ACVWeaponPickUp::ACVWeaponPickUp() {
+}
 
+FString ACVWeaponPickUp::GetInfoText()
+{
+	ACVGameMode* GameMode = Cast<ACVGameMode>(GetWorld()->GetAuthGameMode());
+	UDataTable* WeaponTable = GameMode->GetWeaponDB();
+
+	if (WeaponTable)
+	{
+		FWeaponItem* WeaponInfo = WeaponTable->FindRow<FWeaponItem>(WeaponID, "");
+
+		if (WeaponInfo) {
+			DamageInfo = WeaponInfo->Damage.ToString();
+			RangeInfo = WeaponInfo->Range.ToString();
+		}
+	}
+
+	return FString::Printf(TEXT("Damage: %s \nRange: %s"), *DamageInfo, *RangeInfo);
 }
 
 void ACVWeaponPickUp::Interact(ACVCharacter * Character)
