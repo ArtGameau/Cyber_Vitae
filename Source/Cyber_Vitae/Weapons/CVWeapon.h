@@ -23,12 +23,13 @@ public:
 	FWeaponItem()
 	{
 		Name = FText::FromString("No name");
-		Damage = FText::FromString("No damage");
-		MaxDamageBonus = FText::FromString("No bonus");
-		Ammo= FText::FromString("No ammo");
-		BulletSpread = FText::FromString("No bullet spread");
-		RateOfFire = FText::FromString("No rate of fire");
-		Range = FText::FromString("No range");
+		Damage = 0;
+		MaxDamageBonus = 0;
+		Ammo = 0;
+		BulletSpread = 0;
+		RateOfFire = 0;
+		Range = 0;
+		bCanZoom = false;
 		Description = FText::FromString("Please enter description for this item.");
 
 	}
@@ -46,22 +47,28 @@ public:
 		FText Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FText Damage;
+		float Damage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FText MaxDamageBonus;
+		float MaxDamageBonus;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FText Ammo;
+		int32 Ammo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FText RateOfFire;
+		FName AmmoID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FText BulletSpread;
+		float RateOfFire;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FText Range;
+		float BulletSpread;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 Range;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bCanZoom;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UTexture2D* Thumbnail;
@@ -115,11 +122,11 @@ protected:
 		int32 CurrentAmmo;
 
 	//RPM - Bullets per minute fired by weapon
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 		float RateOfFire;
 
 	//Bullet spread in degrees
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon", meta = (ClampMin = 0.0f))
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon", meta = (ClampMin = 0.0f))
 		float BulletSpread;
 
 	//Derived from RateOfFire
@@ -129,19 +136,19 @@ protected:
 
 	void PlayImpactEffect(EPhysicalSurface SurfaceType, FVector ImpactPoint);
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 		int32 MagazineSize;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 		float BaseDamage;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 		float BonusDamage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 		TSubclassOf<UDamageType> DamageType;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 		int32 Range;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
@@ -167,19 +174,19 @@ protected:
 
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(BlueprintReadOnly)
 		FText Name;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(BlueprintReadOnly)
 		UTexture2D* Thumbnail;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(BlueprintReadOnly)
 		FText Description;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
+	UPROPERTY(BlueprintReadOnly, Category = "Projectile")
 		bool bCanZoom;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		FName AmmoID;
 
 	void SetBonusDamage(float NewBonus);

@@ -9,10 +9,15 @@
 #include "../Characters/CVCharacter.h"
 
 ACVWeaponPickUp::ACVWeaponPickUp() {
+	
+	DamageInfo = "No damage";
+	RangeInfo = "No range";
+
 }
 
-FString ACVWeaponPickUp::GetInfoText()
+void ACVWeaponPickUp::BeginPlay()
 {
+	//find weapon type information in data table and initialise members of this class
 	ACVGameMode* GameMode = Cast<ACVGameMode>(GetWorld()->GetAuthGameMode());
 	UDataTable* WeaponTable = GameMode->GetWeaponDB();
 
@@ -21,11 +26,14 @@ FString ACVWeaponPickUp::GetInfoText()
 		FWeaponItem* WeaponInfo = WeaponTable->FindRow<FWeaponItem>(WeaponID, "");
 
 		if (WeaponInfo) {
-			DamageInfo = WeaponInfo->Damage.ToString();
-			RangeInfo = WeaponInfo->Range.ToString();
+			DamageInfo = FString::SanitizeFloat(WeaponInfo->Damage);
+			RangeInfo = FString::FromInt(WeaponInfo->Range);
 		}
 	}
+}
 
+FString ACVWeaponPickUp::GetInfoText()
+{
 	return FString::Printf(TEXT("Damage: %s \nRange: %s"), *DamageInfo, *RangeInfo);
 }
 

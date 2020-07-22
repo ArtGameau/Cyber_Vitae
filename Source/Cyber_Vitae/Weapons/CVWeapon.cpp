@@ -2,6 +2,8 @@
 
 
 #include "CVWeapon.h"
+#include "CVGameMode.h"
+#include "Engine/World.h"
 #include "Characters/CVCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -45,6 +47,31 @@ ACVWeapon::ACVWeapon()
 void ACVWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//find weapon type information in data table and initialise members of this class
+	ACVGameMode* GameMode = Cast<ACVGameMode>(GetWorld()->GetAuthGameMode());
+	UDataTable* WeaponTable = GameMode->GetWeaponDB();
+
+	if (WeaponTable)
+	{
+		FWeaponItem* WeaponInfo = WeaponTable->FindRow<FWeaponItem>(WeaponID, "");
+
+		if (WeaponInfo) {
+
+			UE_LOG(LogTemp, Log, TEXT("Initializing weapon from data table!"));
+
+			BaseDamage = WeaponInfo->Damage;
+			BonusDamage = WeaponInfo->MaxDamageBonus;
+			Range = WeaponInfo->Range;
+			MagazineSize = WeaponInfo->Ammo;
+			RateOfFire = WeaponInfo->RateOfFire;
+			BulletSpread = WeaponInfo->BulletSpread;
+
+			Name = WeaponInfo->Name;
+			Thumbnail = WeaponInfo->Thumbnail;
+			Description = WeaponInfo->Description;
+		}
+	}
 
 	TimeBetweenShots = 60 / RateOfFire;
 
