@@ -117,13 +117,39 @@ void ACVWeapon::Fire()
 			//Blocking hit process damage
 
 			AActor* HitActor = Hit.GetActor();
+			ACVCharacter* CVOwner = Cast<ACVCharacter>(MyOwner);
+
+			float ActualDamage = BaseDamage;
+		
+			//setting bonus damage based on owner class
+			if (MyOwner) {
+				ECharClassEnum OwnerClass = CVOwner->GetCharClass();
+
+				switch (OwnerClass) {
+				case ECharClassEnum::CE_Tank:
+					ActualDamage = BaseDamage + (Range - Hit.Distance) / Range * BonusDamage;
+					break;
+				case ECharClassEnum::CE_Hacker:
+					ActualDamage = BaseDamage + Hit.Distance / Range * BonusDamage;
+					break;
+				case ECharClassEnum::CE_Jumper:
+					if ((EyeLocation.Z - Hit.Location.Z) > 0) {
+						ActualDamage = BaseDamage + (EyeLocation.Z - Hit.Location.Z) / 200 * BonusDamage;
+					}
+					break;
+				default:
+					ActualDamage = BaseDamage;
+					break;
+
+				}
+			}
+			
 
 			SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
-			float ActualDamage = BaseDamage+BonusDamage;
 
 			if (SurfaceType == SURFACE_FLESHVULNERABLE)
 			{
-				ActualDamage *= 4.0f;
+				ActualDamage *= 2.0f;
 			}
 
 			UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, MyOwner->GetInstigatorController(), MyOwner, DamageType);

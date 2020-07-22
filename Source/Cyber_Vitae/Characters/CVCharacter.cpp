@@ -263,6 +263,11 @@ bool ACVCharacter::HasJetpack()
 	return CharacterClass==ECharClassEnum::CE_Jumper;
 }
 
+ECharClassEnum ACVCharacter::GetCharClass()
+{
+	return CharacterClass;
+}
+
 void ACVCharacter::DestroyEffect()
 {
 	CurrentEffect->Destroy();
