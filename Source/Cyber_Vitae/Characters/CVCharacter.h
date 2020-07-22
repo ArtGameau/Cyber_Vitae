@@ -198,10 +198,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void JetpackHover();
 
-	ECharClassEnum GetCharClass();
-
 	void DestroyEffect();
 
 	bool SetupCharacterClass(ECharClassEnum Class);
+
+	UFUNCTION(BlueprintCallable)
+		void ResetCharacterClass();
+
+	ECharClassEnum GetCharClass();
 
 };

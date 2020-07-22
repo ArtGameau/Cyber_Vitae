@@ -17,7 +17,7 @@ UCVWeaponsComponent::UCVWeaponsComponent()
 
 	CurrentWeaponPlace = 0;
 	CurrentStackSize = 0;
-	MaxStackSize = 4;
+	MaxStackSize = 2;
 
 	EquippedWeaponClasses.SetNum(MaxStackSize);
 	EquippedWeapons.SetNum(MaxStackSize);
@@ -51,9 +51,6 @@ void UCVWeaponsComponent::SpawnWeapons()
 				if (MyOwner && ChOwner) {
 					EquippedWeapons[i]->SetOwner(MyOwner);
 					EquippedWeapons[i]->AttachToComponent(Cast<USceneComponent>(ChOwner->GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
-					if (bIsTank){
-						EquippedWeapons[i]->SetBonusDamage(TankBonus);
-					}
 				}
 			}
 		}
@@ -75,9 +72,6 @@ void UCVWeaponsComponent::SpawnNewWeapon()
 		if (MyOwner && ChOwner) {
 			EquippedWeapons[CurrentStackSize]->SetOwner(MyOwner);
 			EquippedWeapons[CurrentStackSize]->AttachToComponent(Cast<USceneComponent>(ChOwner->GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
-			if (bIsTank) {
-				EquippedWeapons[CurrentStackSize]->SetBonusDamage(TankBonus);
-			}
 		}
 	}
 }
@@ -216,19 +210,7 @@ void UCVWeaponsComponent::SetMaxStackSize(int32 NewMax)
 	EquippedWeapons.SetNum(MaxStackSize);
 }
 
-void UCVWeaponsComponent::SetTank(int32 NewMaxStack, int32 DamageBonus)
-{
-	bIsTank = true;
-	SetMaxStackSize(NewMaxStack);
 
-	TankBonus = DamageBonus;
-	for (int i = 0; i < CurrentStackSize; i++) {
-		if (EquippedWeapons[i]) {
-			EquippedWeapons[i]->SetBonusDamage(TankBonus);
-		}
-	}
-
-}
 
 
 

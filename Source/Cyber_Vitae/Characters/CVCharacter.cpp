@@ -282,22 +282,31 @@ bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
 
 		switch (Class) {
 		case ECharClassEnum::CE_Tank:
-			WeaponsComp->SetTank(3, 10);
-			HealthComp->IncreaseHealth(100);
+			WeaponsComp->SetMaxStackSize(3);
+			HealthComp->SetHealth(200);
 			break;
 		case ECharClassEnum::CE_Hacker:
+			WeaponsComp->SetMaxStackSize(6);
 			break;
 		case ECharClassEnum::CE_Jumper:
+			WeaponsComp->SetMaxStackSize(4);
 			break;
 		default:
 			break;
-
 		}
 		return true;
 	}
 	else {
 		return false;
 	}
+}
+
+void ACVCharacter::ResetCharacterClass()
+{
+	HealthComp->SetHealth(100);
+	WeaponsComp->SetMaxStackSize(2);
+
+	CharacterClass = ECharClassEnum::CE_None;
 }
 
 // Called every frame
