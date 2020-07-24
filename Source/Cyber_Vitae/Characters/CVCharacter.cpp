@@ -122,6 +122,8 @@ void ACVCharacter::PreviousWeapon()
 
 void ACVCharacter::Interact()
 {
+	//UE_LOG(LogTemp, Log, TEXT("Trying to interact!"));
+
 	//if item is hackable but player character class isn't hacker, he can't interact with object
 	if (CurrentInteractive && !CheckInteractConditions(CurrentInteractive)) {
 		UE_LOG(LogTemp, Log, TEXT("Can't hack/pick up this item without hacking equipment!"));
@@ -132,7 +134,7 @@ void ACVCharacter::Interact()
 	if (CurrentInteractive && !CurrentInteractive->bIsInUse) {
 		CurrentInteractive->Interact(this);
 
-		//if we are taking weapon for the first time equipp it 
+		//if we are taking weapon for the first time equip it 
 		if (!EquippedWeapon && Cast<ACVWeaponPickUp>(CurrentInteractive)) {
 			EquippedWeapon = WeaponsComp->FirstWeapon();
 			if (EquippedWeapon) {
@@ -263,6 +265,11 @@ bool ACVCharacter::HasJetpack()
 	return CharacterClass==ECharClassEnum::CE_Jumper;
 }
 
+ECharClassEnum ACVCharacter::GetCharClass()
+{
+	return CharacterClass;
+}
+
 void ACVCharacter::DestroyEffect()
 {
 	CurrentEffect->Destroy();
@@ -277,22 +284,31 @@ bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
 
 		switch (Class) {
 		case ECharClassEnum::CE_Tank:
-			WeaponsComp->SetTank(3, 10);
-			HealthComp->IncreaseHealth(100);
+			WeaponsComp->SetMaxStackSize(3);
+			HealthComp->SetHealth(200);
 			break;
 		case ECharClassEnum::CE_Hacker:
+			WeaponsComp->SetMaxStackSize(6);
 			break;
 		case ECharClassEnum::CE_Jumper:
+			WeaponsComp->SetMaxStackSize(4);
 			break;
 		default:
 			break;
-
 		}
 		return true;
 	}
 	else {
 		return false;
 	}
+}
+
+void ACVCharacter::ResetCharacterClass()
+{
+	HealthComp->SetHealth(100);
+	WeaponsComp->SetMaxStackSize(2);
+
+	CharacterClass = ECharClassEnum::CE_None;
 }
 
 // Called every frame
@@ -342,7 +358,7 @@ void ACVCharacter::FindAndReload(TSubclassOf<ACVWeapon> WeaponType)
 
 void ACVCharacter::Reload()
 {
-	if (InventoryComp->Remove(EquippedWeapon->AmmoID)) {
+	if (EquippedWeapon && InventoryComp->Remove(EquippedWeapon->AmmoID)) {
 		EquippedWeapon->Reload();
 	}
 	else {

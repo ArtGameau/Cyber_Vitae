@@ -39,8 +39,11 @@ protected:
 		UProjectileMovementComponent* MovementComp;
 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
+	UPROPERTY(BlueprintReadOnly, Category="Projectile")
 		float BaseDamage;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Projectile")
+		float BonusDamage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 		float ExplosionDelay;
@@ -67,6 +70,12 @@ public:
 
 	// Called every frame
 	void Tick(float DeltaTime) override;
+
+	void SetDamage(float NewDamage);
+	
+	void SetBonus(float NewBonus);
+
+	void SetRadius(float NewRadius);
 	
 	UFUNCTION()
 		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

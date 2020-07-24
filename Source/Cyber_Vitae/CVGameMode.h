@@ -17,9 +17,14 @@ class CYBER_VITAE_API ACVGameMode : public AGameModeBase
 
 public:
 	UDataTable* GetItemDB() const;
+
+	UDataTable* GetWeaponDB() const;
 	
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
 		UDataTable* ItemDB;
+
+	UPROPERTY(EditDefaultsOnly)
+		UDataTable* WeaponDB;
 };

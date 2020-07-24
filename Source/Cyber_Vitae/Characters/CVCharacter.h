@@ -202,4 +202,9 @@ public:
 
 	bool SetupCharacterClass(ECharClassEnum Class);
 
+	UFUNCTION(BlueprintCallable)
+		void ResetCharacterClass();
+
+	ECharClassEnum GetCharClass();
+
 };
