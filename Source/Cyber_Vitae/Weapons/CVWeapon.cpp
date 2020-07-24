@@ -2,6 +2,8 @@
 
 
 #include "CVWeapon.h"
+#include "CVGameMode.h"
+#include "Engine/World.h"
 #include "Characters/CVCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -45,6 +47,31 @@ ACVWeapon::ACVWeapon()
 void ACVWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//find weapon type information in data table and initialise members of this class
+	ACVGameMode* GameMode = Cast<ACVGameMode>(GetWorld()->GetAuthGameMode());
+	UDataTable* WeaponTable = GameMode->GetWeaponDB();
+
+	if (WeaponTable)
+	{
+		FWeaponItem* WeaponInfo = WeaponTable->FindRow<FWeaponItem>(WeaponID, "");
+
+		if (WeaponInfo) {
+
+			UE_LOG(LogTemp, Log, TEXT("Initializing weapon from data table!"));
+
+			BaseDamage = WeaponInfo->Damage;
+			BonusDamage = WeaponInfo->MaxDamageBonus;
+			Range = WeaponInfo->Range;
+			MagazineSize = WeaponInfo->Ammo;
+			RateOfFire = WeaponInfo->RateOfFire;
+			BulletSpread = WeaponInfo->BulletSpread;
+
+			Name = WeaponInfo->Name;
+			Thumbnail = WeaponInfo->Thumbnail;
+			Description = WeaponInfo->Description;
+		}
+	}
 
 	TimeBetweenShots = 60 / RateOfFire;
 
@@ -90,13 +117,39 @@ void ACVWeapon::Fire()
 			//Blocking hit process damage
 
 			AActor* HitActor = Hit.GetActor();
+			ACVCharacter* CVOwner = Cast<ACVCharacter>(MyOwner);
+
+			float ActualDamage = BaseDamage;
+		
+			//setting bonus damage based on owner class
+			if (MyOwner) {
+				ECharClassEnum OwnerClass = CVOwner->GetCharClass();
+
+				switch (OwnerClass) {
+				case ECharClassEnum::CE_Tank:
+					ActualDamage = BaseDamage + (Range - Hit.Distance) / Range * BonusDamage;
+					break;
+				case ECharClassEnum::CE_Hacker:
+					ActualDamage = BaseDamage + Hit.Distance / Range * BonusDamage;
+					break;
+				case ECharClassEnum::CE_Jumper:
+					if ((EyeLocation.Z - Hit.Location.Z) > 0) {
+						ActualDamage = BaseDamage + (EyeLocation.Z - Hit.Location.Z) / 200 * BonusDamage;
+					}
+					break;
+				default:
+					ActualDamage = BaseDamage;
+					break;
+
+				}
+			}
+			
 
 			SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
-			float ActualDamage = BaseDamage+BonusDamage;
 
 			if (SurfaceType == SURFACE_FLESHVULNERABLE)
 			{
-				ActualDamage *= 4.0f;
+				ActualDamage *= 2.0f;
 			}
 
 			UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, MyOwner->GetInstigatorController(), MyOwner, DamageType);

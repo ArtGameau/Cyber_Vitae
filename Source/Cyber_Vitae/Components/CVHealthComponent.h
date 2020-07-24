@@ -50,8 +50,6 @@ public:
 
 	void SetHealth(float NewHealth);
 
-	void IncreaseHealth(float NewHealth);
-
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 		FOnHealthChangedSignature OnHealthChanged;
 		

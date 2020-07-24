@@ -7,3 +7,8 @@ UDataTable* ACVGameMode::GetItemDB() const
 {
 	return ItemDB;
 }
+
+UDataTable * ACVGameMode::GetWeaponDB() const
+{
+	return WeaponDB;
+}

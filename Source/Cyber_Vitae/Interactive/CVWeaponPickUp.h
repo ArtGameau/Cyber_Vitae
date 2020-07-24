@@ -19,8 +19,25 @@ public:
 	ACVWeaponPickUp();
 
 protected:
+
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FName WeaponID;
+	
+	UPROPERTY(BlueprintReadOnly)
 		TSubclassOf<ACVWeapon> WeaponClass;
+
+	FString DamageInfo;
+
+	FString RangeInfo;
+
+	FString BonusInfo;
+
+
+	UFUNCTION(BlueprintCallable, Category = "Interactive")
+		FString GetInfoText();
 
 
 public:

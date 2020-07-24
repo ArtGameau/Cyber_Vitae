@@ -40,10 +40,6 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 		FName WeaponAttachSocketName;
 
-	bool bIsTank;
-
-	int32 TankBonus;
-
 public:
 
 	ACVWeapon* NextWeapon();
@@ -63,8 +59,5 @@ public:
 	
 	//used when choosing character class
 	void SetMaxStackSize(int32 NewMax);
-
-	//setting up tank class
-	void SetTank(int32 NewMaxStack, int32 DamageBonus);
 
 };
