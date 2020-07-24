@@ -28,5 +28,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ProjectileWeapon")
 		TSubclassOf<ACVProjectile> ProjectileClass;
+
+	ACVProjectile* Projectile;
 	
 };

@@ -122,6 +122,8 @@ void ACVCharacter::PreviousWeapon()
 
 void ACVCharacter::Interact()
 {
+	//UE_LOG(LogTemp, Log, TEXT("Trying to interact!"));
+
 	//if item is hackable but player character class isn't hacker, he can't interact with object
 	if (CurrentInteractive && !CheckInteractConditions(CurrentInteractive)) {
 		UE_LOG(LogTemp, Log, TEXT("Can't hack/pick up this item without hacking equipment!"));
@@ -132,7 +134,7 @@ void ACVCharacter::Interact()
 	if (CurrentInteractive && !CurrentInteractive->bIsInUse) {
 		CurrentInteractive->Interact(this);
 
-		//if we are taking weapon for the first time equipp it 
+		//if we are taking weapon for the first time equip it 
 		if (!EquippedWeapon && Cast<ACVWeaponPickUp>(CurrentInteractive)) {
 			EquippedWeapon = WeaponsComp->FirstWeapon();
 			if (EquippedWeapon) {

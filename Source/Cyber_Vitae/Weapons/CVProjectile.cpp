@@ -142,3 +142,19 @@ void ACVProjectile::Tick(float DeltaTime)
 
 }
 
+void ACVProjectile::SetDamage(float NewDamage)
+{
+	BaseDamage = NewDamage;
+}
+
+void ACVProjectile::SetBonus(float NewBonus)
+{
+	BonusDamage = NewBonus;
+}
+
+void ACVProjectile::SetRadius(float NewRadius)
+{
+	RadialForceComp->Radius = NewRadius;
+	
+}
+

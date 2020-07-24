@@ -26,12 +26,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FName WeaponID;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(BlueprintReadOnly)
 		TSubclassOf<ACVWeapon> WeaponClass;
 
 	FString DamageInfo;
 
 	FString RangeInfo;
+
+	FString BonusInfo;
 
 
 	UFUNCTION(BlueprintCallable, Category = "Interactive")

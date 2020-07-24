@@ -147,6 +147,8 @@ void UCVWeaponsComponent::FindAndReload(TSubclassOf<ACVWeapon> WeaponType)
 
 bool UCVWeaponsComponent::AddWeapon(TSubclassOf<ACVWeapon> WeaponClass)
 {
+	//UE_LOG(LogTemp, Log, TEXT("Trying to add weapon!"));
+
 	if (CurrentStackSize < MaxStackSize) {
 		EquippedWeaponClasses[CurrentStackSize] = WeaponClass;
 		SpawnNewWeapon();
