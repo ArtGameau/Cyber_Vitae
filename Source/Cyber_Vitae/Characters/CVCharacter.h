@@ -112,6 +112,9 @@ protected:
 	void StartFire();
 	void StopFire();
 
+	void ShiftStart();
+	void ShiftEnd();
+
 	void PlayerJump();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -178,6 +181,24 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void UseEffect();
 
+	UFUNCTION(BlueprintCallable)
+		bool CheckInteractConditions(ACVInteractiveActor* Interactive);
+
+	UFUNCTION(BlueprintCallable)
+		bool HasJetpack();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void JetpackHover();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void JetpackJump();
+
+	UFUNCTION(BlueprintCallable)
+		void ResetCharacterClass();
+
+	UFUNCTION(BlueprintCallable)
+		FText GetCharClassText();
+
 	
 public:	
 	// Called every frame
@@ -189,21 +210,9 @@ public:
 	//Called to fill weapon magazine
 	void FindAndReload(TSubclassOf<ACVWeapon> WeaponType);
 
-	UFUNCTION(BlueprintCallable)
-		bool CheckInteractConditions(ACVInteractiveActor* Interactive);
-
-	UFUNCTION(BlueprintCallable)
-		bool HasJetpack();
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void JetpackHover();
-
 	void DestroyEffect();
 
 	bool SetupCharacterClass(ECharClassEnum Class);
-
-	UFUNCTION(BlueprintCallable)
-		void ResetCharacterClass();
 
 	ECharClassEnum GetCharClass();
 
