@@ -281,6 +281,7 @@ bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
 {
 	if (CharacterClass == ECharClassEnum::CE_None) {
 		CharacterClass = Class;
+		UCharacterMovementComponent* Movement = GetCharacterMovement();
 
 		switch (Class) {
 		case ECharClassEnum::CE_Tank:
@@ -292,6 +293,10 @@ bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
 			break;
 		case ECharClassEnum::CE_Jumper:
 			WeaponsComp->SetMaxStackSize(4);
+			if (Movement) {
+				Movement->AirControl = 1.0;
+				//JumpMaxHoldTime = 5;
+			}
 			break;
 		default:
 			break;
@@ -307,8 +312,31 @@ void ACVCharacter::ResetCharacterClass()
 {
 	HealthComp->SetHealth(100);
 	WeaponsComp->SetMaxStackSize(2);
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+	if (Movement) {
+		Movement->AirControl = 0;
+		//JumpMaxHoldTime = 0;
+	}
 
 	CharacterClass = ECharClassEnum::CE_None;
+}
+
+FText ACVCharacter::GetCharClassText()
+{
+	switch (CharacterClass) {
+	case ECharClassEnum::CE_Tank:
+		return FText::FromString("Tank");
+		break;
+	case ECharClassEnum::CE_Hacker:
+		return FText::FromString("Hacker");
+		break;
+	case ECharClassEnum::CE_Jumper:
+		return FText::FromString("Jumper");
+		break;
+	default:
+		return FText::FromString("None");
+		break;
+	}
 }
 
 // Called every frame
@@ -346,6 +374,9 @@ void ACVCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("SwitchUp", IE_Pressed, this, &ACVCharacter::NextWeapon);
 	PlayerInputComponent->BindAction("SwitchDown", IE_Pressed, this, &ACVCharacter::PreviousWeapon);
 
+	PlayerInputComponent->BindAction("ShiftAction", IE_Pressed, this, &ACVCharacter::ShiftStart);
+	PlayerInputComponent->BindAction("ShiftAction", IE_Released, this, &ACVCharacter::ShiftEnd);
+
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACVCharacter::Interact);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ACVCharacter::Reload);
@@ -377,6 +408,36 @@ void ACVCharacter::StopFire()
 {
 	if (EquippedWeapon) {
 		EquippedWeapon->StopFire();
+	}
+}
+
+void ACVCharacter::ShiftStart()
+{
+	if (!HasJetpack()) {
+		UCharacterMovementComponent* Movement = GetCharacterMovement();
+
+		if (Movement) {
+			float CurrentSpeed = Movement->MaxWalkSpeed;
+			Movement->MaxWalkSpeed = CurrentSpeed + 600;
+			UE_LOG(LogTemp, Log, TEXT("Speed up started!"));
+		}
+	}
+	else {
+		JetpackJump();
+	}
+}
+
+void ACVCharacter::ShiftEnd()
+{
+	if (!HasJetpack()) {
+		UCharacterMovementComponent* Movement = GetCharacterMovement();
+
+		if (Movement) {
+
+			float CurrentSpeed = Movement->MaxWalkSpeed;
+			Movement->MaxWalkSpeed = CurrentSpeed - 600;
+			UE_LOG(LogTemp, Log, TEXT("Speed up ended!"));
+		}
 	}
 }
 
