@@ -285,7 +285,7 @@ bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
 
 		switch (Class) {
 		case ECharClassEnum::CE_Tank:
-			WeaponsComp->SetMaxStackSize(3);
+			WeaponsComp->SetMaxStackSize(4);
 			HealthComp->SetHealth(200);
 			break;
 		case ECharClassEnum::CE_Hacker:
@@ -295,7 +295,6 @@ bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
 			WeaponsComp->SetMaxStackSize(4);
 			if (Movement) {
 				Movement->AirControl = 1.0;
-				//JumpMaxHoldTime = 5;
 			}
 			break;
 		default:
@@ -315,7 +314,6 @@ void ACVCharacter::ResetCharacterClass()
 	UCharacterMovementComponent* Movement = GetCharacterMovement();
 	if (Movement) {
 		Movement->AirControl = 0;
-		//JumpMaxHoldTime = 0;
 	}
 
 	CharacterClass = ECharClassEnum::CE_None;

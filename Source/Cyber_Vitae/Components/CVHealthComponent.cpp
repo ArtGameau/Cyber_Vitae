@@ -2,6 +2,7 @@
 
 
 #include "CVHealthComponent.h"
+#include"../Characters/CVCharacter.h"
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 
@@ -51,8 +52,11 @@ void UCVHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage,
 
 	//update health clamped
 	Health = FMath::Clamp(Health - Damage, 0.0f, DefaultHealth);
-
-	UE_LOG(LogTemp, Log, TEXT("Health Changed: %s"), *FString::SanitizeFloat(Health));
+	
+	ACVCharacter* CVOwner = Cast<ACVCharacter>(GetOwner());
+	if (CVOwner) {
+		UE_LOG(LogTemp, Log, TEXT("Health Changed: %s"), *FString::SanitizeFloat(Health));
+	}
 
 	bIsDead = Health <= 0.0f;
 

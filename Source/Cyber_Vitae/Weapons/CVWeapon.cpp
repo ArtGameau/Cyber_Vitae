@@ -122,7 +122,7 @@ void ACVWeapon::Fire()
 			float ActualDamage = BaseDamage;
 		
 			//setting bonus damage based on owner class
-			if (MyOwner) {
+			if (CVOwner) {
 				ECharClassEnum OwnerClass = CVOwner->GetCharClass();
 
 				switch (OwnerClass) {
