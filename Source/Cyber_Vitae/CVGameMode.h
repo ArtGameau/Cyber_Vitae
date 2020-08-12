@@ -16,6 +16,9 @@ class CYBER_VITAE_API ACVGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+
+	ACVGameMode();
+
 	UDataTable* GetItemDB() const;
 
 	UDataTable* GetWeaponDB() const;

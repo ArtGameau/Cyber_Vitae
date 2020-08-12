@@ -206,8 +206,33 @@ TArray<ACVWeapon*> UCVWeaponsComponent::GetWeapons()
 
 void UCVWeaponsComponent::SetMaxStackSize(int32 NewMax)
 {
-	MaxStackSize = NewMax;
+	//if current equipped weapon is out of scope then put it in begining of weapons array
+	if (CurrentWeaponPlace >= NewMax) {
 
+		//need to swap places because first equipped weapon should also be destroyed later
+		ACVWeapon* Placeholder1 = EquippedWeapons[0];
+		ACVWeapon* Placeholder2 = EquippedWeapons[CurrentWeaponPlace];
+		EquippedWeapons.RemoveAt(CurrentWeaponPlace);
+		EquippedWeapons.RemoveAt(0);
+		EquippedWeapons.Insert(Placeholder2, 0);
+		EquippedWeapons.Insert(Placeholder1, CurrentWeaponPlace);
+		CurrentWeaponPlace = 0;
+
+		TSubclassOf<ACVWeapon> PlaceholderClass = EquippedWeaponClasses[CurrentStackSize];
+		EquippedWeaponClasses.RemoveAt(0);
+		EquippedWeaponClasses.Insert(PlaceholderClass, 0);
+	}
+
+	//destroy all spawned weapons that are not needed anymore
+	for (int i = NewMax; i < CurrentStackSize; i++) {
+		EquippedWeapons[i]->Destroy();
+	}
+
+	//set new stack size
+	if (CurrentStackSize > NewMax) {
+		CurrentStackSize = NewMax;
+	}
+	MaxStackSize = NewMax;
 	EquippedWeaponClasses.SetNum(MaxStackSize);
 	EquippedWeapons.SetNum(MaxStackSize);
 }
