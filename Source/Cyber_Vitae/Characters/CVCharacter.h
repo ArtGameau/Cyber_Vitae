@@ -119,6 +119,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UCVHealthComponent* HealthComp;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		//UStaticMeshComponent* JetpackComp;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UCameraComponent* CameraComp;
@@ -152,6 +155,9 @@ protected:
 	//Pawn died previously
 	UPROPERTY(BlueprintReadOnly, Category = "Player")
 		bool bDied;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Player")
+		void HasDied();
 
 	UPROPERTY(BlueprintReadOnly, Category = "Player")
 	bool bWantsToZoom;
