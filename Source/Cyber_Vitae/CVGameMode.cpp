@@ -2,13 +2,6 @@
 
 
 #include "CVGameMode.h"
-#include "CVGameState.h"
-
-
-ACVGameMode::ACVGameMode()
-{
-	GameStateClass = ACVGameState::StaticClass();
-}
 
 UDataTable* ACVGameMode::GetItemDB() const
 {
