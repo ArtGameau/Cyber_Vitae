@@ -27,9 +27,6 @@ ACVCharacter::ACVCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//JetpackComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("JetpackComp"));
-	//JetpackComp->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "JetpackSocket");
-
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->SetupAttachment(RootComponent);
@@ -226,8 +223,6 @@ void ACVCharacter::OnHealthChanged(UCVHealthComponent* OwningHealthComp, float H
 		GetMovementComponent()->StopMovementImmediately();
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		bDied = true;
-
-		HasDied();
 
 		UE_LOG(LogTemp, Log, TEXT("Actor is killed!"));
 
