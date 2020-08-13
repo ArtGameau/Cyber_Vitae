@@ -224,6 +224,8 @@ void ACVCharacter::OnHealthChanged(UCVHealthComponent* OwningHealthComp, float H
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		bDied = true;
 
+		HasDied();
+
 		UE_LOG(LogTemp, Log, TEXT("Actor is killed!"));
 
 		DetachFromControllerPendingDestroy();
@@ -285,7 +287,7 @@ bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
 
 		switch (Class) {
 		case ECharClassEnum::CE_Tank:
-			WeaponsComp->SetMaxStackSize(3);
+			WeaponsComp->SetMaxStackSize(4);
 			HealthComp->SetHealth(200);
 			break;
 		case ECharClassEnum::CE_Hacker:
@@ -295,7 +297,6 @@ bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
 			WeaponsComp->SetMaxStackSize(4);
 			if (Movement) {
 				Movement->AirControl = 1.0;
-				//JumpMaxHoldTime = 5;
 			}
 			break;
 		default:
