@@ -216,4 +216,7 @@ public:
 
 	ECharClassEnum GetCharClass();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Player")
+		void HasDied();
+
 };

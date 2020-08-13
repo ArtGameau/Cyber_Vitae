@@ -17,5 +17,11 @@ class CYBER_VITAE_API ACVDataPickUp : public ACVPickUp
 protected:
 
 	void BeginPlay() override;
+
+public:
+	UFUNCTION(BlueprintImplementableEvent, Category = "Data Pickup")
+		void CVDataTaken();
+
+	void Interact(ACVCharacter* Character) override;
 	
 };
