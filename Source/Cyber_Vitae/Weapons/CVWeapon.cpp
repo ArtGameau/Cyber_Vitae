@@ -189,6 +189,16 @@ void ACVWeapon::PlayFireEffect(FVector EndPoint)
 		}
 	}
 
+	APawn* MyOwner = Cast<APawn>(GetOwner());
+	if (MyOwner)
+	{
+		APlayerController* PC = Cast<APlayerController>(MyOwner->GetController());
+		if (PC)
+		{
+			PC->ClientPlayCameraShake(FireCamShake);
+		}
+	}
+
 }
 
 void ACVWeapon::PlayImpactEffect(EPhysicalSurface SurfaceType, FVector ImpactPoint)

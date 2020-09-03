@@ -10,6 +10,7 @@
 #include "Components/CVInventoryComponent.h"
 #include "Components/CVWeaponsComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Effects/CVBaseEffect.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -41,6 +42,12 @@ ACVCharacter::ACVCharacter()
 	ZoomedCameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("ZoomedCameraComp"));
 	ZoomedCameraComp->SetupAttachment(ZoomedSpringArmComp);
 	ZoomedCameraComp->bIsActive = false;
+
+	JetpackMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("JetpackMesh"));
+	JetpackMesh->SetupAttachment(Cast<USceneComponent>(GetMesh()), "JetpackSocket");
+	JetpackMesh->SetVisibility(false);
+
+
 
 	HealthComp = CreateDefaultSubobject<UCVHealthComponent>(TEXT("HealthComp"));
 
@@ -288,12 +295,13 @@ bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
 		switch (Class) {
 		case ECharClassEnum::CE_Tank:
 			WeaponsComp->SetMaxStackSize(4);
-			HealthComp->SetHealth(200);
+			HealthComp->SetArmor();
 			break;
 		case ECharClassEnum::CE_Hacker:
 			WeaponsComp->SetMaxStackSize(6);
 			break;
 		case ECharClassEnum::CE_Jumper:
+			JetpackMesh->SetVisibility(true);
 			WeaponsComp->SetMaxStackSize(4);
 			if (Movement) {
 				Movement->AirControl = 1.0;
@@ -311,12 +319,16 @@ bool ACVCharacter::SetupCharacterClass(ECharClassEnum Class)
 
 void ACVCharacter::ResetCharacterClass()
 {
-	HealthComp->SetHealth(100);
+	HealthComp->ResetArmor();
 	WeaponsComp->SetMaxStackSize(2);
+
+	if (JetpackMesh->IsVisible()) {
+		JetpackMesh->SetVisibility(false);
+	}
+	
 	UCharacterMovementComponent* Movement = GetCharacterMovement();
 	if (Movement) {
 		Movement->AirControl = 0;
-		//JumpMaxHoldTime = 0;
 	}
 
 	CharacterClass = ECharClassEnum::CE_None;

@@ -9,6 +9,10 @@
 UCVHealthComponent::UCVHealthComponent()
 {
 	DefaultHealth = 100;
+
+	DefaultArmor = 100;
+
+	bHasArmor = false;
 	
 	bIsDead = false;
 
@@ -49,10 +53,27 @@ void UCVHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage,
 		return;
 	}
 
-	//update health clamped
-	Health = FMath::Clamp(Health - Damage, 0.0f, DefaultHealth);
-
-	UE_LOG(LogTemp, Log, TEXT("Health Changed: %s"), *FString::SanitizeFloat(Health));
+	if(bHasArmor && Armor>0.0)
+	{
+		//if actor took more damage than armor left then remaining damage will be taken from health
+		if (Damage >= Armor) {
+			Damage = Damage - Armor;
+			Armor = 0.0;
+			Health = FMath::Clamp(Health - Damage, 0.0f, DefaultHealth);
+			UE_LOG(LogTemp, Log, TEXT("Health Changed: %s"), *FString::SanitizeFloat(Health));
+		}
+		else
+		{
+			Armor = FMath::Clamp(Armor - Damage, 0.0f, DefaultArmor);
+			UE_LOG(LogTemp, Log, TEXT("Armor Changed: %s"), *FString::SanitizeFloat(Armor));
+		}
+	}
+	else {
+		//update health clamped
+		Health = FMath::Clamp(Health - Damage, 0.0f, DefaultHealth);
+		
+		UE_LOG(LogTemp, Log, TEXT("Health Changed: %s"), *FString::SanitizeFloat(Health));
+	}
 
 	bIsDead = Health <= 0.0f;
 
@@ -62,12 +83,12 @@ void UCVHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage,
 
 		//ACVGameMode* GM = Cast<ACVGameMode>(GetWorld()->GetAuthGameMode());
 
-		//if (GM && DamageCauser != DamagedActor) {
+		if (DamageCauser != DamagedActor) {
 
 			//GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy);
 
-			//UE_LOG(LogTemp, Log, TEXT("Actor is killed!"));
-		//}
+			UE_LOG(LogTemp, Log, TEXT("Actor is killed!"));
+		}
 	}
 	
 }
@@ -77,9 +98,21 @@ float UCVHealthComponent::GetHealth() const
 	return Health;
 }
 
-void UCVHealthComponent::SetHealth(float NewHealth)
+void UCVHealthComponent::SetDefaultHealth(float NewHealth)
 {
-	Health = NewHealth;
+	DefaultHealth = NewHealth;
+}
+
+void UCVHealthComponent::SetArmor()
+{
+	bHasArmor = true;
+	Armor = DefaultArmor;
+}
+
+void UCVHealthComponent::ResetArmor()
+{
+	bHasArmor = false;
+	Armor = 0;
 }
 
 bool UCVHealthComponent::IsFriendly(AActor* ActorA, AActor* ActorB)
